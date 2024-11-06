@@ -1,28 +1,15 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useState } from "react";
 
 export default function Page() {
-  const [character, setCharacter] = useState("celestialOracle");
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     keepLastMessageOnError: true,
-    body: { character },
+    body: { character: "etherealVisions" },
   });
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-4 bg-white">
-      <select
-        value={character}
-        onChange={(e) => setCharacter(e.target.value)}
-        className="mb-4 p-2 border rounded"
-      >
-        <option value="celestialOracle">Celestial Oracle</option>
-        <option value="etherealVisions">Ethereal Visions</option>
-        <option value="divinePathways">Divine Pathways</option>
-        <option value="stellarWisdom">Stellar Wisdom</option>
-        <option value="etherealVisions">Ethereal Visions</option>
-      </select>
       <div className="space-y-4">
         {messages.map((message) => (
           <div
@@ -62,3 +49,4 @@ export default function Page() {
     </div>
   );
 }
+

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Chat from "../chat/page";
 
+
 export default function Healer() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-amber-50">
@@ -9,7 +10,7 @@ export default function Healer() {
         <div className="text-2xl font-bold">Lumicula</div>
       </header>
 
-      <Link href="/chat">
+      <Link href="/celestial">
         <div className="flex flex-col items-center mt-8">
           <div className="w-48 h-48 bg-gray-400">Image 2</div>
           <p className="mt-4">Get clarity to foggy mind</p>
