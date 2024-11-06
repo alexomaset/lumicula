@@ -21,7 +21,7 @@ export default function Page() {
             }`}
           >
             <div className="font-bold mb-1">
-              {message.role === "user" ? "You:" : "AI:"}
+              {message.role === "user" ? "You:" : "Cosmic Horizons:"}
             </div>
             <div>{message.content}</div>
           </div>

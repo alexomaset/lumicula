@@ -9,8 +9,8 @@ import celestial from '../public/images/celestial.jpeg'
 import Footer from "./footer/page";
 
 const characters = [
-  { title: "Celestial Oracle", path: "/celestial-ui"},
-  { title: "Stellar Wisdom", path: "/stellar-ui" },
+  { title: "Celestial Oracle", path: "/celestial-ui", image: "/celestial.jpeg"},
+  { title: "Stellar Wisdom", path: "/stellar-ui"},
   { title: "Ethereal Visions", path: "/etherial-ui" },
   { title: "Divine Pathways", path: "/divine-ui" },
   { title: "Cosmic Horizons", path: "/cosmic-ui" },
@@ -22,16 +22,16 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-between py-8 bg-amber-50">
       {/* Main Section */}
       <main className="flex flex-col items-center text-center">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-16 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-16 mt-8">
         {characters.map(({ title, path }) => (
             <Link href={path} key={title}>
-              <div className="flex flex-col items-center bg-white p-4">
-                <div className="w-full h-32 bg-stone-400 flex items-center justify-center overflow-hidden">
+              <div className="flex flex-col items-center bg-white p-6 w-80">
+                <div className="w-full h-48 bg-stone-400 flex items-center justify-center overflow-hidden">
                   <Image
                     src={bg}
                     alt="place holder"
                     className="object-contain h-full w-full"
-                    width={400}
+                    width={600}
                     height={328}
                   />
                 </div>
