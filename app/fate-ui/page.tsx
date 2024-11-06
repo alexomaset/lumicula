@@ -1,7 +1,8 @@
 // pages/healer.tsx
 import Link from "next/link";
 import Image from "next/image";
-import ethereal from "../public/images/ethereal.jpeg";
+import fate from "../public/images/fate.jpeg"
+import Footer from "../footer/page";
 
 export default function Page() {
   return (
@@ -15,7 +16,7 @@ export default function Page() {
           <div className="w-48 h-48 bg-gray-400">
             {" "}
             <Image
-              src={ethereal} // Use your imported image
+              src={fate} // Use your imported image
               alt="Descriptive alt text" // Provide descriptive alt text
               width={400} // Adjust width as needed
               height={400} // Adjust height as needed
@@ -32,13 +33,7 @@ export default function Page() {
 
       <div className="mt-8 px-8 text-center text-black">
         <p>
-          Ethereal Visions is a wise, visionary guide who empowers users to
-          recognize the impact of their actions and choices on their future.
-          Through thoughtful, insightful conversations, this character helps
-          users unlock their hidden potential and provides guidance on how to
-          manifest their desired life. Ethereal Visions is both practical and
-          reflective, blending inspiration with actionable advice to encourage
-          growth and self-discovery..
+        Fate Whisperer is a soft-spoken, compassionate guide who offers wisdom to help users navigate everyday challenges. With a soothing and gentle demeanor, he provides kind and intuitive insights, helping users find confidence and clarity in uncertain moments. Fate Whisperer is a reassuring presence, offering calm guidance that encourages users to trust themselves and embrace life’s journey.
         </p>
         <p className="font-bold mt-4">Text might have a bold row as well</p>
         <p className="mt-4 text-black">
@@ -46,6 +41,7 @@ export default function Page() {
           paragraphs.
         </p>
       </div>
+      <Footer />
     </div>
   );
 }

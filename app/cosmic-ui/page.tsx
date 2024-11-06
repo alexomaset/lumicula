@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Chat from "../chat/page";
 import Image from "next/image";
-import celestial from '../public/images/celestial.jpeg'
+import cosmic from "../public/images/comsic.jpeg"
 
 
 export default function Page() {
@@ -16,7 +16,7 @@ export default function Page() {
         <div className="flex flex-col items-center mt-8">
           <div className="w-48 h-48 bg-gray-400">
             <Image
-              src={celestial} // Use your imported image
+              src={cosmic} // Use your imported image
               alt="Descriptive alt text" // Provide descriptive alt text
               width={400} // Adjust width as needed
               height={400} // Adjust height as needed
@@ -32,7 +32,7 @@ export default function Page() {
       </Link>
 
       <div className="mt-8 px-8 text-center text-black">
-        <p>Celestial Oracle is a mysterious and wise guide, gifted with the ability to read the stars and interpret the hidden messages of the universe. With an ethereal presence, she provides deep insight into life's most pressing questions, offering clarity through astrology and intuitive readings. Celestial Oracle may illuminate your path and reveal the secrets of your destiny.</p>
+        <p>Cosmic Horizons is a stellar guide with a unique ability to interpret the wisdom of the stars, providing direction and clarity for those seeking to fulfill their dreams and unlock their true potential. This character is visionary, insightful, and empowering, offering users practical steps and encouragement grounded in a cosmic perspective.</p>
         <p className="font-bold mt-4">Text might have a bold row as well</p>
         <p className="mt-4 text-black">
           This text can be 20-30 lines of text and it can be divided into

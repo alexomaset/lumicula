@@ -6,6 +6,7 @@ import Link from "next/link";
 import Healer from "./healer/page";
 import image from "next/image";
 import celestial from '../public/images/celestial.jpeg'
+import Footer from "./footer/page";
 
 const characters = [
   { title: "Celestial Oracle", path: "/celestial-ui"},
@@ -43,6 +44,7 @@ export default function Home() {
           ))}
         </div>
       </main>
+      <Footer/>
     </div>
   );
 }
