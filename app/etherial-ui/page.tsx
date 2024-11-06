@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import ethereal from "../public/images/ethereal.jpeg";
+import Footer from "../footer/page";
 
 export default function Page() {
   return (

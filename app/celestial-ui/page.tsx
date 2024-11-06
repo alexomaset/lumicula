@@ -3,6 +3,7 @@ import Link from "next/link";
 import Chat from "../chat/page";
 import Image from "next/image";
 import celestial from '../public/images/celestial.jpeg'
+import Footer from "../footer/page";
 
 
 export default function Page() {
@@ -32,13 +33,14 @@ export default function Page() {
       </Link>
 
       <div className="mt-8 px-8 text-center text-black">
-        <p>Celestial Oracle is a mysterious and wise guide, gifted with the ability to read the stars and interpret the hidden messages of the universe. With an ethereal presence, she provides deep insight into life's most pressing questions, offering clarity through astrology and intuitive readings. Celestial Oracle may illuminate your path and reveal the secrets of your destiny.</p>
+        <p>Celestial Oracle is a mysterious and wise guide, gifted with the ability to read the stars and interpret the hidden messages of the universe. With an ethereal presence, she provides deep insight into lifes most pressing questions, offering clarity through astrology and intuitive readings. Celestial Oracle may illuminate your path and reveal the secrets of your destiny.</p>
         <p className="font-bold mt-4">Text might have a bold row as well</p>
         <p className="mt-4 text-black">
           This text can be 20-30 lines of text and it can be divided into
           paragraphs.
         </p>
       </div>
+      <Footer />
     </div>
   );
 }
