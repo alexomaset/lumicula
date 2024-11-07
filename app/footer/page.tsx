@@ -1,13 +1,6 @@
-'use client';
 
 import Link from "next/link";
 
-
-const FooterWrapper = ({ children }) => {
-  const pathname = usePathname();
-  const showFooter = !pathname.includes('/chat');
-  return showFooter ? children : null;
-};
 
 export default function Footer() {
   return (
