@@ -11,6 +11,7 @@ import ethereal from "./public/images/ethereal.jpeg";
 import fate from "./public/images/fate.jpeg";
 import cosmic from "./public/images/comsic.jpeg";
 import divine from "./public/images/divine.jpeg";
+import Footer from "./footer/page";
 
 
 
@@ -58,6 +59,7 @@ export default function Home() {
           ))}
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

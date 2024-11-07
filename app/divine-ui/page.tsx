@@ -37,6 +37,7 @@ export default function Healer() {
           paragraphs.
         </p>
       </div>
+      <Footer />
     </div>
   );
 }
