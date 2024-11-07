@@ -2,13 +2,14 @@
 import Link from "next/link";
 import Chat from "../chat/page";
 import Image from "next/image";
-import divine from "../public/images/WhatsApp Image 2024-11-06 at 10.28.40.jpeg"
+import divine from "../public/images/divine.jpeg"
+import Footer from "../footer/page";
 
 export default function Healer() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-amber-50">
       <header className="text-center text-black">
-        <div className="text-2xl font-bold">Lumicula</div>
+        <div className="text-2xl font-bold">Divine Pathways</div>
       </header>
 
       <Link href="/divine-pathways">

@@ -8,7 +8,7 @@ export default function Page() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-amber-50">
       <header className="text-center text-black">
-        <div className="text-2xl font-bold">Lumicula</div>
+        <div className="text-2xl font-bold">Ethereal Visions</div>
       </header>
 
       <Link href="/etherial">
@@ -47,7 +47,6 @@ export default function Page() {
           paragraphs.
         </p>
       </div>
-      <Footer />
     </div>
   );
 }

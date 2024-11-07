@@ -3,6 +3,7 @@ import Link from "next/link";
 import Chat from "../chat/page";
 import Image from "next/image";
 import stellar from "../public/images/stellar.jpeg";
+import Footer from "../footer/page";
 
 export default function Page() {
   return (

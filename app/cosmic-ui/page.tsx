@@ -3,13 +3,14 @@ import Link from "next/link";
 import Chat from "../chat/page";
 import Image from "next/image";
 import cosmic from "../public/images/comsic.jpeg"
+import Footer from "../footer/page";
 
 
 export default function Page() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-amber-50">
       <header className="text-center text-black">
-        <div className="text-2xl font-bold">Lumicula</div>
+        <div className="text-2xl font-bold">Cosmic Horizons</div>
       </header>
 
       <Link href="/cosmic">

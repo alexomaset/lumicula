@@ -41,7 +41,6 @@ export default function Page() {
           paragraphs.
         </p>
       </div>
-      <Footer />
     </div>
   );
 }
