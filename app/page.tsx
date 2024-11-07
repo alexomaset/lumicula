@@ -1,10 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-
 import Image from "next/image";
-import bg from "./public/images/bg.jpg";
 import Link from "next/link";
-import Healer from "./healer/page";
-import image from "next/image";
 import celestial from "./public/images/celestial.jpeg";
 import stellar from "./public/images/stellar.jpeg";
 import ethereal from "./public/images/ethereal.jpeg";
@@ -13,23 +8,45 @@ import cosmic from "./public/images/comsic.jpeg";
 import divine from "./public/images/divine.jpeg";
 import Footer from "./footer/page";
 
-
-
 const characterImages = {
-  'Celestial Oracle': celestial,  
-  'Stellar Wisdom': stellar,
-  'Ethereal Visions': ethereal,
-  'Divine Pathways' : divine,
-  'Cosmic Horizons': cosmic,
-  'Fate Whisperer': fate,
+  "Celestial Oracle": celestial,
+  "Stellar Wisdom": stellar,
+  "Ethereal Visions": ethereal,
+  "Divine Pathways": divine,
+  "Cosmic Horizons": cosmic,
+  "Fate Whisperer": fate,
 };
 const characters = [
-  { title: "Celestial Oracle", path: "/celestial-ui", image: characterImages['Celestial Oracle']},
-  { title: "Stellar Wisdom", path: "/stellar-ui", image: characterImages['Stellar Wisdom']},
-  { title: "Ethereal Visions", path: "/etherial-ui", image: characterImages['Ethereal Visions']},
-  { title: "Divine Pathways", path: "/divine-ui", image: characterImages['Divine Pathways']},
-  { title: "Cosmic Horizons", path: "/cosmic-ui", image: characterImages['Cosmic Horizons']},
-  { title: "Fate Whisperer", path: "/fate-ui", image: characterImages['Fate Whisperer']},
+  {
+    title: "Celestial Oracle",
+    path: "/celestial-ui",
+    image: characterImages["Celestial Oracle"],
+  },
+  {
+    title: "Stellar Wisdom",
+    path: "/stellar-ui",
+    image: characterImages["Stellar Wisdom"],
+  },
+  {
+    title: "Ethereal Visions",
+    path: "/etherial-ui",
+    image: characterImages["Ethereal Visions"],
+  },
+  {
+    title: "Divine Pathways",
+    path: "/divine-ui",
+    image: characterImages["Divine Pathways"],
+  },
+  {
+    title: "Cosmic Horizons",
+    path: "/cosmic-ui",
+    image: characterImages["Cosmic Horizons"],
+  },
+  {
+    title: "Fate Whisperer",
+    path: "/fate-ui",
+    image: characterImages["Fate Whisperer"],
+  },
 ];
 
 export default function Home() {
@@ -38,7 +55,7 @@ export default function Home() {
       {/* Main Section */}
       <main className="flex flex-col items-center text-center">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-16 mt-8">
-        {characters.map(({ title, path, image }) => (
+          {characters.map(({ title, path, image }) => (
             <Link href={path} key={title}>
               <div className="flex flex-col items-center bg-white p-6 w-80">
                 <div className="w-full h-48 bg-stone-400 flex items-center justify-center overflow-hidden">
