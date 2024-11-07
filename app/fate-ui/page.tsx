@@ -8,7 +8,7 @@ export default function Page() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-amber-50">
       <header className="text-center text-black">
-        <div className="text-2xl font-bold">Lumicula</div>
+        <div className="text-2xl font-bold">Fate Whisperer</div>
       </header>
 
       <Link href="/fate">
@@ -23,7 +23,6 @@ export default function Page() {
               className="object-cover rounded-lg" // Customize as needed
             />
           </div>
-          <p className="mt-4">Fate Whisperer</p>
 
           <button className="mt-4 bg-black text-white py-2 px-4 rounded">
             Connect

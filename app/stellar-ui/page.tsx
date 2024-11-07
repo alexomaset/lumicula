@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-amber-50">
       <header className="text-center text-black">
-        <div className="text-2xl font-bold">Lumicula</div>
+        <div className="text-2xl font-bold">Stellar Wisdom</div>
       </header>
 
       <Link href="/stellar">
@@ -23,8 +23,6 @@ export default function Page() {
               className="object-cover rounded-lg" // Customize as needed
             />{" "}
           </div>
-          <p className="mt-4">Stellar Wisdom</p>
-
           <button className="mt-4 bg-black text-white py-2 px-4 rounded">
             Connect
           </button>
@@ -45,6 +43,7 @@ export default function Page() {
           paragraphs.
         </p>
       </div>
+      <Footer />
     </div>
   );
 }

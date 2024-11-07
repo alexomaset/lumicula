@@ -21,8 +21,6 @@ export default function Healer() {
               height={400} // Adjust height as needed
               className="object-cover rounded-lg" // Customize as needed
             /></div>
-          <p className="mt-4">Divine Pathways</p>
-
           <button className="mt-4 bg-black text-white py-2 px-4 rounded">
             Connect
           </button>
