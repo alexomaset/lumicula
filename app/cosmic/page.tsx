@@ -11,25 +11,16 @@ export default function Page() {
     });
 
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
-  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (lastMessageRef.current && messagesContainerRef.current) {
-      const container = messagesContainerRef.current;
-      const isAtBottom = 
-        container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
-  
-      if (isAtBottom) {
-        lastMessageRef.current.scrollIntoView({ 
-          behavior: 'smooth'
-        });
-      }
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, isLoading]);
+  }, [messages]);
 
   return (
-    <div className="max-w-4xl mx-auto p-2 sm:p-4 space-y-4 bg-white pb-24">
-      <div ref={messagesContainerRef} className="space-y-4">
+    <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+      <div className="space-y-4">
         {messages.map((message, index) => (
           <div
             key={message.id}
@@ -50,7 +41,7 @@ export default function Page() {
 
       <form
         onSubmit={handleSubmit}
-        className="fixed bottom-0 left-0 right-0 bg-white p-2 sm:p-4 border-t flex gap-2"
+        className="fixed bottom-0 left-0 right-0 bg-white p-4 border-t flex gap-2 z-10 max-w-4xl mx-auto"
       >
         <input
           name="prompt"
