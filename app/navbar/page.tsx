@@ -18,13 +18,14 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/">
           <div className="flex items-center space-x-2">
-            <Image src={lumi} alt="Lumicula logo" width={300} height={300} />
+            <div className="hover:brightness-110 hover:scale-105 transition transform duration-200 ease-in-out">
+              <Image src={lumi} alt="Lumicula logo" width={300} height={300} />
+            </div>
           </div>
         </Link>
 
         {/* Centered Links */}
         <div className="hidden lg:flex space-x-6">
-          <Link href="/"></Link>
           <Link href="/feedback">
             <p className="hover:text-yellow-300">About</p>
           </Link>
