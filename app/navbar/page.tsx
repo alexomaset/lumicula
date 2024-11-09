@@ -18,7 +18,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/">
           <div className="flex items-center space-x-2">
-            <Image src={lumi} alt="Lumicula logo" width={150} height={100} />
+            <Image src={lumi} alt="Lumicula logo" width={300} height={300} />
           </div>
         </Link>
 
