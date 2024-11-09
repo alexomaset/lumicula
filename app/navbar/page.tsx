@@ -1,7 +1,5 @@
-// components/Header.tsx
 "use client";
 
-// components/Navbar.js
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,28 +12,38 @@ export default function Navbar() {
 
   return (
     <nav className="w-full bg-white px-6 py-4 text-black">
-      <div className="flex justify-left items-center space-x-8">
-        {/* Logo */}
-        <Link href="/">
-          <div className="flex items-center space-x-2">
-            <div className="hover:brightness-110 hover:scale-105 transition transform duration-200 ease-in-out">
-              <Image src={lumi} alt="Lumicula logo" width={300} height={300} />
+      <div className="flex justify-between items-center">
+        
+        {/* Logo and About Link */}
+        <div className="flex items-center space-x-6">
+          <Link href="/">
+            <div className="flex items-center space-x-2">
+              <div className="hover:brightness-110 hover:scale-105 transition transform duration-200 ease-in-out">
+                <Image src={lumi} alt="Lumicula logo" width={300} height={300} />
+              </div>
             </div>
-          </div>
-        </Link>
-
-        {/* Centered Links */}
-        <div className="hidden lg:flex space-x-6">
+          </Link>
           <Link href="/feedback">
             <p className="hover:text-yellow-300">About</p>
           </Link>
         </div>
+        
+        {/* Login and Signup Buttons */}
+        <div className="hidden lg:flex space-x-4 items-center">
+          <Link href="/login">
+            <button className="text-black hover:text-yellow-500 transition-colors">
+              Login
+            </button>
+          </Link>
+          <Link href="/signup">
+            <button className="bg-yellow-400 text-white px-4 py-2 rounded hover:bg-yellow-500 transition-colors">
+              Signup
+            </button>
+          </Link>
+        </div>
 
         {/* Hamburger Menu for Mobile */}
-        <button
-          onClick={toggleMenu}
-          className="text-xl lg:hidden absolute right-6"
-        >
+        <button onClick={toggleMenu} className="text-xl lg:hidden">
           &#9776;
         </button>
       </div>
@@ -46,6 +54,16 @@ export default function Navbar() {
           <Link href="/feedback">
             <p onClick={toggleMenu} className="hover:text-yellow-300">
               About
+            </p>
+          </Link>
+          <Link href="/login">
+            <p onClick={toggleMenu} className="hover:text-yellow-500">
+              Login
+            </p>
+          </Link>
+          <Link href="/signup">
+            <p onClick={toggleMenu} className="hover:text-yellow-500">
+              Signup
             </p>
           </Link>
         </div>
