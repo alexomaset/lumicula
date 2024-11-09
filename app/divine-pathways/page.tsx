@@ -20,7 +20,7 @@ export default function Page() {
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
-  <div className="space-y-4">
+      <div className="space-y-4">
         {messages.map((message, index) => (
           <div
             key={message.id}
@@ -56,7 +56,32 @@ export default function Page() {
           className="px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-base"
           disabled={isLoading} // Disable button when loading
         >
-          {isLoading ? "Sending..." : "Send"}
+          {isLoading ? (
+            <>
+              <svg
+                className="animate-spin h-5 w-5 mr-2 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                ></path>
+              </svg>
+            </>
+          ) : (
+            "Send"
+          )}
         </button>
       </form>
     </div>
