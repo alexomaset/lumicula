@@ -38,11 +38,6 @@ export default function CharacterPage({
       </Link>
       <div className="mt-8 px-8 text-center text-black">
         <p>{characterDescription}</p>
-        <p className="font-bold mt-4">Text might have a bold row as well</p>
-        <p className="mt-4 text-black">
-          This text can be 20-30 lines of text and it can be divided into
-          paragraphs.
-        </p>
       </div>
       <Footer />
     </div>

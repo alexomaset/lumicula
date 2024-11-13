@@ -33,6 +33,6 @@ export default withAuth({
 export const config = {
   matcher: [
     '/protected/:path*',
-    '/home/:path*'
+    '/api/:path*'
   ]
 }

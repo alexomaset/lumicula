@@ -5,7 +5,7 @@ export default function HealerPage() {
   return (
     <CharacterPage
       characterName="Cosmic Horizons"
-      characterDescription="Celestial Oracle is a mysterious and wise guide, gifted with the ability to read the stars and interpret the hidden messages of the universe..."
+      characterDescription="Cosmic Horizons is a stellar guide who interprets the wisdom of the stars, offering clear direction to help you align with your dreams. With cosmic insights, they reveal the steps needed to manifest your deepest desires and unlock your true potential."
       imageSrc={comsic}
       linkHref="/cosmic"
     />

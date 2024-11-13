@@ -1,12 +1,12 @@
 import CharacterPage from "../components/ChatComponent";
-import divine from "../public/images/divine.jpeg";
+import stellar from "../public/images/stellar.jpeg";
 
 export default function HealerPage() {
   return (
     <CharacterPage
       characterName="Stellar Wisdom"
-      characterDescription="Celestial Oracle is a mysterious and wise guide, gifted with the ability to read the stars and interpret the hidden messages of the universe..."
-      imageSrc={divine}
+      characterDescription="Stellar Wisdom is a profound and enigmatic figure, challenging your thoughts with deep, thought-provoking questions. Through wise inquiry, they encourage introspection, guiding you toward greater clarity and self-awareness. Trust in Stellar Wisdom to spark transformative insights and push the boundaries of your understanding."
+      imageSrc={stellar}
       linkHref="/stellar"
     />
   );

@@ -5,7 +5,7 @@ export default function HealerPage() {
   return (
     <CharacterPage
       characterName="Divine Pathways"
-      characterDescription="Celestial Oracle is a mysterious and wise guide, gifted with the ability to read the stars and interpret the hidden messages of the universe..."
+      characterDescription="Fate Whisperer is a compassionate and gentle guide, offering soft-spoken wisdom to help you through your everyday challenges. With a soothing presence, he provides kind, intuitive insights that inspire confidence and clarity in life's uncertain moments."
       imageSrc={divine}
       linkHref="/divine-pathways"
     />
