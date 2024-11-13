@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import lumi from '../public/images/lumi.jpeg';
+import { useState } from "react";
+import { useSession, signIn, signOut } from "next-auth/react";
+import Link from "next/link";
+import Image from "next/image";
+import lumi from "../public/images/lumi.jpeg";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Add authentication state
+  const { data: session, status } = useSession(); // Add authentication state
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -27,32 +28,36 @@ export default function Navbar() {
               />
             </div>
           </Link>
-          <Link href="/feedback" className="hidden md:block hover:text-yellow-300">
+          <Link
+            href="/feedback"
+            className="hidden md:block hover:text-yellow-300"
+          >
             About
           </Link>
         </div>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-4 items-center">
-          {!isLoggedIn ? (
+          {status !== "loading" && !session ? (
             <>
-              <Link href="/login">
-                <button className="text-black hover:text-yellow-500 transition-colors">
-                  Login
-                </button>
-              </Link>
-              <Link href="/signup">
-                <button className="bg-yellow-400 text-white px-4 py-2 rounded hover:bg-yellow-500 transition-colors">
-                  Signup
-                </button>
-              </Link>
+              <button
+                onClick={() => signIn("google")}
+                className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded hover:bg-yellow-500 transition-colors"
+              >
+                <img
+                  src="https://developers.google.com/identity/images/g-logo.png"
+                  alt="Google"
+                  className="w-6 h-6"
+                />
+                <span>Sign in</span>
+              </button>
             </>
           ) : (
-            <button 
-              onClick={() => setIsLoggedIn(false)}
+            <button
+              onClick={() => signOut()}
               className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
             >
-              Logout
+              Sign out
             </button>
           )}
         </div>
@@ -71,26 +76,26 @@ export default function Navbar() {
               About
             </p>
           </Link>
-          {!isLoggedIn ? (
+          {status !== "loading" && !session ? (
             <>
-              <Link href="/login">
-                <button className="text-left hover:text-yellow-500">Login</button>
-              </Link>
-              <Link href="/signup">
-                <p onClick={toggleMenu} className="hover:text-yellow-500">
-                  Signup
-                </p>
-              </Link>
+              <button
+                onClick={() => signIn("google")}
+                className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded hover:bg-yellow-500 transition-colors"
+              >
+                <img
+                  src="https://developers.google.com/identity/images/g-logo.png"
+                  alt="Google"
+                  className="w-6 h-6"
+                />
+                <span>Sign in</span>
+              </button>
             </>
           ) : (
-            <button 
-              onClick={() => {
-                setIsLoggedIn(false);
-                toggleMenu();
-              }}
-              className="text-left text-red-500"
+            <button
+              onClick={() => signOut()}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
             >
-              Logout
+              Sign out
             </button>
           )}
         </div>
