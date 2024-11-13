@@ -50,15 +50,18 @@ export default function Navbar() {
                   className="w-6 h-6"
                 />
                 <span>Sign in</span>
+                
               </button>
             </>
           ) : (
+            <>
             <button
               onClick={() => signOut()}
               className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
             >
               Sign out
             </button>
+            </>
           )}
         </div>
 

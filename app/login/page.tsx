@@ -20,7 +20,7 @@ export default function LoginPage() {
           ) : (
             <button
               onClick={() =>
-                signIn("google", { callbackUrl: "https://lumicula.vercel.app/" })
+                signIn("google", { callbackUrl: "http://localhost:3000" })
               }
             >
               Sign in with Google

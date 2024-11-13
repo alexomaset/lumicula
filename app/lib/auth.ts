@@ -17,22 +17,7 @@ export const authOptions: AuthOptions = {
     }
   },
   pages: {
-    signIn: '/login',
+    signIn: '/',
   }
 }
 
-// 3. Create middleware for route protection (middleware.ts)
-import { withAuth } from "next-auth/middleware"
-
-export default withAuth({
-  pages: {
-    signIn: '/login',
-  },
-})
-
-export const config = {
-  matcher: [
-    '/protected/:path*',
-    '/api/:path*'
-  ]
-}
