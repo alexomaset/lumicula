@@ -36,7 +36,7 @@ export default function CharacterPage({
           </button>
         </div>
       </Link>
-      <div className="mt-8 px-8 text-center text-black max-w-xl leading-relaxed">
+      <div className="mt-8 px-8 text-center text-black max-w-3xl leading-relaxed">
         <p>{characterDescription}</p>
       </div>
     </div>
