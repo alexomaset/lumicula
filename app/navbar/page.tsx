@@ -61,11 +61,6 @@ export default function Navbar() {
                 onClick={() => signIn("google")}
                 className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded hover:bg-yellow-500 transition-colors"
               >
-                <Image
-                  src="https://developers.google.com/identity/images/g-logo.png"
-                  alt="Google"
-                  className="w-6 h-6"
-                />
                 <span>Sign in</span>
               </button>
             </>
