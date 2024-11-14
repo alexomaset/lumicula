@@ -24,15 +24,10 @@ export default function AuthButtons() {
         onClick={() => signIn('google', { callbackUrl: '/' })}
         className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded hover:bg-gray-100 border border-gray-300"
       >
-        <Image
-          src="https://developers.google.com/identity/images/g-logo.png"
-          alt="Google"
-          className="w-6 h-6"
-        />
         <span>Sign in</span>
       </button>
       <button
-        onClick={() => signIn('google', { callbackUrl: '/' })}
+        onClick={() => signIn('google', { callbackUrl: '/onboarding' })}
         className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
       >
         Sign up
