@@ -1,43 +1,70 @@
 import { InferSelectModel } from 'drizzle-orm';
 import {
+  primaryKey,
   pgTable,
   varchar,
   timestamp,
   json,
   uuid,
   text,
-  primaryKey,
-  foreignKey,
-  boolean,
+  serial,
+  integer,
 } from 'drizzle-orm/pg-core';
 
-export const user = pgTable('User', {
-  id: uuid('id').primaryKey().notNull().defaultRandom(),
-  email: varchar('email', { length: 64 }).notNull(),
-  password: varchar('password', { length: 64 }),
+
+export const users = pgTable("users", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  name: text("name"),
+  email: text("email").unique(),
+  emailVerified: timestamp("emailVerified", { mode: "date" }),
+  image: text("image"),
+  role: text("role").default("user"),
 });
 
-export type User = InferSelectModel<typeof user>;
+export type User = InferSelectModel<typeof users>;
+
+
+export const accounts = pgTable('account', {
+  userId: text('userId').notNull(),
+  type: text('type').notNull(),
+  provider: text('provider').notNull(),
+  providerAccountId: text('providerAccountId').notNull(),
+  refresh_token: text('refresh_token'),
+  access_token: text('access_token'),
+  expires_at: integer('expires_at'),
+  token_type: text('token_type'),
+  scope: text('scope'),
+  id_token: text('id_token'),
+  session_state: text('session_state')
+})
+
+export type accountsTable = InferSelectModel<typeof accounts>;
+
+
+export const sessions = pgTable('sessions', {
+  sessionToken: text('sessionToken').primaryKey(),
+  userId: text('userId').notNull(),
+  expires: timestamp('expires').notNull()
+})
+
+export type Session = InferSelectModel<typeof sessions>;
+
+export const verificationTokens = pgTable('verificationToken', {
+  identifier: text('identifier').notNull(),
+  token: text('token').notNull(),
+  expires: timestamp('expires').notNull()
+}, (table) => ({
+  compoundKey: primaryKey(table.identifier, table.token)
+}))
+
+export type verificationToken = InferSelectModel<typeof verificationTokens>;
 
 export const chat = pgTable('Chat', {
-  id: uuid('id').primaryKey().notNull().defaultRandom(),
-  createdAt: timestamp('createdAt').notNull(),
-  title: text('title').notNull(),
-  userId: uuid('userId')
-    .notNull()
-    .references(() => user.id),
+  id: serial('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id),
+  message: text('message').notNull(),
+  role: text('role').notNull(),
+  createdAt: timestamp('created_at').defaultNow()
 });
 
 export type Chat = InferSelectModel<typeof chat>;
-
-export const message = pgTable('Message', {
-  id: uuid('id').primaryKey().notNull().defaultRandom(),
-  chatId: uuid('chatId')
-    .notNull()
-    .references(() => chat.id),
-  role: varchar('role').notNull(),
-  content: json('content').notNull(),
-  createdAt: timestamp('createdAt').notNull(),
-});
-
-export type Message = InferSelectModel<typeof message>;

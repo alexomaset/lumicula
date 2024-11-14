@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="container mx-auto">
         <Link href="/terms-conditions">
           <p className="text-sm font-semibold tracking-wide">
-            © 2024 Lumicula Inc
+            © 2024 Revontulia Inc
           </p>
           <p className="mt-2 text-xs opacity-75 hover:opacity-100 transition-opacity duration-300">
             Privacy Policy | Terms of Use

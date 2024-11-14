@@ -8,6 +8,34 @@
       "when": 1731491667536,
       "tag": "0000_nebulous_strong_guy",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1731527442280,
+      "tag": "0001_open_mac_gargan",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1731572895320,
+      "tag": "0002_lazy_sersi",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1731585057371,
+      "tag": "0003_reflective_power_pack",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1731586389184,
+      "tag": "0004_huge_nightmare",
+      "breakpoints": true
     }
   ]
 }

@@ -54,6 +54,7 @@ export default function FeedbackForm() {
                  !isSubmitting;
 
   return (
+    <>
     <div className="min-h-screen flex flex-col items-center bg-amber-50 p-4">
       <form onSubmit={handleSubmit} className="w-full max-w-lg space-y-4">
         <section className="w-full max-w-lg text-center mt-8">
@@ -110,7 +111,8 @@ export default function FeedbackForm() {
           </p>
         )}
       </form>
-      <Footer />
     </div>
+    <Footer />
+    </>
   );
 }

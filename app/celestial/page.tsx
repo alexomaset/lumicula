@@ -6,28 +6,11 @@ import { useRef, useEffect, useState } from "react";
 export default function Page() {
   const [savedMessages, setSavedMessages] = useState([]);
 
-  useEffect(() => {
-    // Fetch saved messages on component mount
-    const fetchSavedMessages = async () => {
-      const response = await fetch("/api/chat");
-      const data = await response.json();
-      setSavedMessages(data.messages);
-    };
-    fetchSavedMessages();
-  }, []);
-
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
       keepLastMessageOnError: true,
       body: { character: "celestialOracle" },
       initialMessages: savedMessages, // Initialize with saved messages
-      onFinish: async (message) => {
-        // Save message to database after completion
-        await fetch("/api/chat/save", {
-          method: "POST",
-          body: JSON.stringify({ messages: [...messages, message] }),
-        });
-      },
     });
 
   const lastMessageRef = useRef<HTMLDivElement | null>(null);

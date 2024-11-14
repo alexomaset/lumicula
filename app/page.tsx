@@ -51,6 +51,7 @@ const characters = [
 
 export default function Home() {
   return (
+    <>
     <div className="min-h-screen flex flex-col items-center justify-between py-8 bg-amber-50">
       {/* Main Section */}
       <main className="flex flex-col items-center text-center">
@@ -76,7 +77,8 @@ export default function Home() {
           ))}
         </div>
       </main>
-      <Footer />
     </div>
+    <Footer />
+    </>
   );
 }

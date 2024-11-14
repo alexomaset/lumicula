@@ -5,12 +5,14 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import lumi from "../public/images/lumi.jpeg";
+import AuthButtons from "../components/AuthButtons";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session, status } = useSession(); // Add authentication state
 
   const toggleMenu = () => setIsOpen(!isOpen);
+  
 
   return (
     <nav className="w-full bg-white px-6 py-4 text-black">
@@ -30,40 +32,14 @@ export default function Navbar() {
           </Link>
           <Link
             href="/feedback"
-            className="hidden md:block hover:text-yellow-300"
+            className="hidden md:block hover:text-yellow-300 mt-[15px]"
           >
             About
           </Link>
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex space-x-4 items-center">
-          {status !== "loading" && !session ? (
-            <>
-              <button
-                onClick={() => signIn("google")}
-                className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded hover:bg-yellow-500 transition-colors"
-              >
-                <img
-                  src="https://developers.google.com/identity/images/g-logo.png"
-                  alt="Google"
-                  className="w-6 h-6"
-                />
-                <span>Sign in</span>
-                
-              </button>
-            </>
-          ) : (
-            <>
-            <button
-              onClick={() => signOut()}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
-            >
-              Sign out
-            </button>
-            </>
-          )}
-        </div>
+        <AuthButtons />
 
         {/* Hamburger Menu - Mobile Only */}
         <button onClick={toggleMenu} className="md:hidden text-xl">
@@ -85,7 +61,7 @@ export default function Navbar() {
                 onClick={() => signIn("google")}
                 className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded hover:bg-yellow-500 transition-colors"
               >
-                <img
+                <Image
                   src="https://developers.google.com/identity/images/g-logo.png"
                   alt="Google"
                   className="w-6 h-6"

@@ -1,14 +1,19 @@
 // api
 // different charac
+import { authOptions } from '@/app/lib/auth';
 import { openai } from '@ai-sdk/openai';
-import { streamText } from 'ai';
-
+import { streamText, convertToCoreMessages } from 'ai';
+import { getServerSession } from 'next-auth';
+import { db } from '@/app/db';
+import { chat } from '@/app/db/schema';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
   const { messages, character } = await req.json();
+  
 
   type CharacterType = 'celestialOracle' | 'stellarWisdom' | 'etherealVisions' | 'divinePathways' | 'cosmicHorizons' | 'fateWhisperer';
 
@@ -298,12 +303,14 @@ export async function POST(req: Request) {
     ...messages
   ];
 
+  const coreMessages = convertToCoreMessages(enrichedMessages);
+
+
   const result = await streamText({
     model: openai('gpt-4-turbo'),
-    messages: enrichedMessages,
+    messages:coreMessages,
+    
   });
-
-  console.log(result)
 
   return result.toDataStreamResponse();
 }
