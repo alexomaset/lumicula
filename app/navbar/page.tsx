@@ -9,10 +9,9 @@ import AuthButtons from "../components/AuthButtons";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: session, status } = useSession(); // Add authentication state
+  const { data: session, status } = useSession();
 
   const toggleMenu = () => setIsOpen(!isOpen);
-  
 
   return (
     <nav className="w-full bg-white px-6 py-4 text-black">
@@ -38,8 +37,10 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Desktop Navigation */}
-        <AuthButtons />
+        {/* Desktop Auth Buttons */}
+        <div className="hidden md:block">
+          <AuthButtons />
+        </div>
 
         {/* Hamburger Menu - Mobile Only */}
         <button onClick={toggleMenu} className="md:hidden text-xl">
@@ -55,23 +56,8 @@ export default function Navbar() {
               About
             </p>
           </Link>
-          {status !== "loading" && !session ? (
-            <>
-              <button
-                onClick={() => signIn("google")}
-                className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded hover:bg-yellow-500 transition-colors"
-              >
-                <span>Sign in</span>
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => signOut()}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
-            >
-              Sign out
-            </button>
-          )}
+          {/* Auth Buttons displayed only in the mobile menu */}
+          <AuthButtons />
         </div>
       )}
     </nav>

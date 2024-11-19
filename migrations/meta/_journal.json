@@ -36,6 +36,27 @@
       "when": 1731586389184,
       "tag": "0004_huge_nightmare",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1731603186877,
+      "tag": "0005_strong_silver_fox",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1731603581989,
+      "tag": "0006_groovy_puck",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1731607184380,
+      "tag": "0007_bright_true_believers",
+      "breakpoints": true
     }
   ]
 }

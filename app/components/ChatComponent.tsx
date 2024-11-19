@@ -5,7 +5,7 @@ import Footer from "../footer/page";
 interface CharacterPageProps {
   characterName: string;
   characterDescription: string;
-  imageSrc: StaticImageData; // Import the correct type for StaticImageData if needed
+  imageSrc: StaticImageData; 
   linkHref: string;
 }
 

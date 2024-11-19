@@ -8,7 +8,10 @@ import { streamText } from 'ai';
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
+
+
   const { messages, character } = await req.json();
+
 
   type CharacterType = 'celestialOracle' | 'stellarWisdom' | 'etherealVisions' | 'divinePathways' | 'cosmicHorizons' | 'fateWhisperer';
 
@@ -298,12 +301,18 @@ export async function POST(req: Request) {
     ...messages
   ];
 
+
+
+
   const result = await streamText({
     model: openai('gpt-4-turbo'),
     messages: enrichedMessages,
   });
 
+
   console.log(result)
 
   return result.toDataStreamResponse();
 }
+
+

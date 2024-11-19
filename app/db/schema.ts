@@ -10,15 +10,16 @@ import {
   serial,
   integer,
 } from 'drizzle-orm/pg-core';
+import { createId } from '@paralleldrive/cuid2';
 
 
-export const users = pgTable("users", {
-  id: varchar("id", { length: 255 }).primaryKey(),
-  name: text("name"),
-  email: text("email").unique(),
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
-  image: text("image"),
-  role: text("role").default("user"),
+export const users = pgTable('users', {
+  id: text('id').$defaultFn(() => createId()).primaryKey().notNull(),
+  name: text('name'),
+  email: text('email').unique(),
+  emailVerified: timestamp('emailVerified', { mode: 'date' }),
+  image: text('image'),
+  role: text('role').default('user'),
 });
 
 export type User = InferSelectModel<typeof users>;

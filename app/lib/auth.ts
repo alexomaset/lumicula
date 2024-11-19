@@ -19,6 +19,36 @@ export const authOptions: AuthOptions = {
       })
     ],
     session: {
-      strategy: "database"
-    }
-  }
+      strategy: "database",
+      maxAge: 30 * 24 * 60 * 60,
+    },
+    callbacks: {
+      async jwt({ token, user }) {
+        if (user) {
+          token.id = user.id;
+        }
+        return token;
+      },
+      async session({ session, token }) {
+        if (token?.id) {
+          session.user = {
+            ...(session.user || {}),
+            id: token.id as string
+          };
+        }
+        console.log('Session Token:', token);
+        return session;
+      },
+    },
+    events: {
+      async signIn({ user, account }) {
+        if (!user.email) {
+          throw new Error("Email required for authentication");
+        }
+      },
+      async signOut({ session }) {
+        // Clear any additional session data or cookies here
+        console.log('User signed out, clearing session data');
+      },
+    },
+  };
