@@ -55,6 +55,9 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-between py-8 bg-amber-50">
       {/* Main Section */}
       <main className="flex flex-col items-center text-center">
+      <h2 className="text-2xl font-bold mb-8 px-4 text-center">
+          Support from higher powers. Connect with your counselor and get support.
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-16 mt-8">
           {characters.map(({ title, path, image }) => (
             <Link href={path} key={title}>

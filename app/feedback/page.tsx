@@ -110,6 +110,14 @@ export default function FeedbackForm() {
             {status}
           </p>
         )}
+         <section className="w-full max-w-lg text-center mt-8">
+          <h1 className="text-xl font-semibold">Terms and conditions</h1>
+          <p className="mt-4 text-gray-700">
+          Our service is currently under development. Therefore, you are using our service on a best-effort basis.
+          We do not guarantee the accuracy of our counselors advice, as they are not accredited psychiatrists, psychologists, licensed social workers, 
+          or licensed marriage and family therapists, but rather self-taught individuals.
+          </p>
+        </section>
       </form>
     </div>
     <Footer />

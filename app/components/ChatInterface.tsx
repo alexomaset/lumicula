@@ -1,34 +1,32 @@
 "use client";
 
 import { useChat } from "ai/react";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { CharacterConfig } from "../lib/Characters";
 import ChatMessageList from "./ChatMessageList";
 import ChatInputForm from "./ChatInput";
-// Define the character configuration type
 
-// Props for the ChatInterface component
 interface ChatInterfaceProps {
   character: CharacterConfig;
 }
 
 export default function ChatInterface({ character }: ChatInterfaceProps) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const sessionId = session?.user?.id || "anonymous";
 
   const {
     messages,
     input,
     handleInputChange,
-    append,
     handleSubmit,
     isLoading,
   } = useChat({
+    id: `chat-${sessionId}-${character.id}`,
     keepLastMessageOnError: true,
     body: {
       character: character.id,
-      sessionId,
+      sessionId: session?.user?.id || "anonymous", 
     },
     initialMessages: [{
       id: "system-message",

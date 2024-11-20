@@ -1,4 +1,4 @@
-import { InferSelectModel } from 'drizzle-orm';
+import { InferSelectModel, relations } from 'drizzle-orm';
 import {
   primaryKey,
   pgTable,
@@ -9,6 +9,7 @@ import {
   text,
   serial,
   integer,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 import { createId } from '@paralleldrive/cuid2';
 
@@ -39,7 +40,7 @@ export const accounts = pgTable('account', {
   session_state: text('session_state')
 })
 
-export type accountsTable = InferSelectModel<typeof accounts>;
+export type accounts = InferSelectModel<typeof accounts>;
 
 
 export const sessions = pgTable('sessions', {
@@ -48,7 +49,7 @@ export const sessions = pgTable('sessions', {
   expires: timestamp('expires').notNull()
 })
 
-export type Session = InferSelectModel<typeof sessions>;
+export type Sessions = InferSelectModel<typeof sessions>;
 
 export const verificationTokens = pgTable('verificationToken', {
   identifier: text('identifier').notNull(),
@@ -60,12 +61,36 @@ export const verificationTokens = pgTable('verificationToken', {
 
 export type verificationToken = InferSelectModel<typeof verificationTokens>;
 
-export const chat = pgTable('Chat', {
-  id: serial('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => users.id),
-  message: text('message').notNull(),
-  role: text('role').notNull(),
-  createdAt: timestamp('created_at').defaultNow()
+export const chat = pgTable('chats', {
+  // Use uuid for more robust identifier
+  id: text('id').primaryKey(),
+  
+  // Foreign key to users
+  userId: text('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  
+  // Store messages as JSONB for flexible storage
+  messages: jsonb('messages').$type<any[]>().notNull(),
+  
+  // Metadata fields
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  
+  // Optional: character or context identifier
+  characterId: text('character_id'),
 });
 
+
 export type Chat = InferSelectModel<typeof chat>;
+
+// Relation to users table
+export const chatRelations = relations(chat, ({ one }) => ({
+  user: one(users, {
+    fields: [chat.userId],
+    references: [users.id]
+  })
+}));
+
+// Type definition
+export type NewChat = InferSelectModel<typeof chat>;
