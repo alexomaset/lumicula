@@ -10,11 +10,6 @@ export async function GET(req: Request) {
         // Get the server-side session
         const session = await getServerSession(authOptions);
         
-        // Check if user is authenticated
-        if (!session?.user?.id) {
-          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-    
         // Get userId from query params
         const { searchParams } = new URL(req.url);
         const userId = searchParams.get('userId');
@@ -22,6 +17,16 @@ export async function GET(req: Request) {
         // Validate userId
         if (!userId) {
           return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+        }
+    
+        // If no authenticated session, only allow fetching for the current userId
+        if (!session?.user?.id) {
+          return NextResponse.json({ chats: [], message: 'Unauthenticated access limited' });
+        }
+    
+        // Ensure the requesting user can only fetch their own chats
+        if (session.user.id !== userId) {
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
         }
     
         // Fetch chats for the user

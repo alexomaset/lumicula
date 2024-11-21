@@ -12,43 +12,16 @@ import { NextResponse } from 'next/server';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 60;
-export async function GET(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
-    }
-
-    const chats = await getChatsByUserId(userId);
-    return NextResponse.json(chats);
-    
-  } catch (error) {
-    console.error('Error fetching chats:', error);
-    return NextResponse.json(
-      { error: 'Internal Server Error' }, 
-      { status: 500 }
-    );
-  }
-}
 
 export async function POST(req: Request) {
 
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return new Response('Unauthorized', { status: 401 });
-    }
+    const userId = session?.user?.id;
 
     const { messages, character } = await req.json();
-    const userId = session.user.id;
 
+    // Generate a temporary ID for unauthenticated users
     type CharacterType = 'celestialOracle' | 'stellarWisdom' | 'etherealVisions' |
       'divinePathways' | 'cosmicHorizons' | 'fateWhisperer';
     const characters: Record<CharacterType, { role: string; content: string }> = {
@@ -340,7 +313,7 @@ export async function POST(req: Request) {
 
     const coreMessages = convertToCoreMessages(enrichedMessages)
 
-    const chatId = createId();
+    const chatId = userId || createId();
 
     console.log('Generated chatId:', chatId);
 
@@ -352,12 +325,14 @@ export async function POST(req: Request) {
         try {
           const allMessages = [...coreMessages, ...responseMessages];
 
-          await saveChat({
-            id: chatId,
-            messages: allMessages,
-            userId,
-            characterId: character
-          });
+          if (userId) {
+            await saveChat({
+                id: chatId,
+                userId,
+                characterId: character,
+                messages,
+            });
+        }
 
           console.log('Chat saved successfully:', {
             chatId,
