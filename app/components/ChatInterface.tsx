@@ -30,12 +30,15 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
     },
     initialMessages: [{
       id: "system-message",
-      role: "assistant",
-      content: character.initialMessage 
+      role: "system",
+      content:`Hello! I'm ${character.name}, ready to chat with you.`
     }]
   });
 
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+   handleInputChange
+  }, []);
 
   // Scroll to last message effect
   useEffect(() => {

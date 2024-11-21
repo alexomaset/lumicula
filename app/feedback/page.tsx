@@ -13,7 +13,7 @@ export default function FeedbackForm() {
   });
 
   useEffect(() => {
-    emailjs.init('Kra_Xcv86bnZDwvMb');
+    emailjs.init('kr-RN1C8oifSvgJQW');
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -30,8 +30,8 @@ export default function FeedbackForm() {
 
     try {
       await emailjs.send(
-        'service_xppqg5k',
-        'template_10d2u7a',
+        'service_fzgv1oh',
+        'template_u6stj4w',
         {
           from_email: formData.email,
           message: formData.feedback,

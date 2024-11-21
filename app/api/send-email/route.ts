@@ -6,14 +6,14 @@ export async function POST(req: Request) {
     const { email, feedback } = await req.json();
     
     await emailjs.send(
-      'service_xppqg5k',
-      'template_10d2u7a',
+      'service_6unx3hx',
+      'template_by0lz9s',
       {
         from_email: email,
         message: feedback,
         to_email: 'your-email@example.com',
       },
-      'Kra_Xcv86bnZDwvMb'
+      'kr-RN1C8oifSvgJQW'
     );
     
     return NextResponse.json({ message: 'Email sent successfully' });
