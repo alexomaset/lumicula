@@ -1,5 +1,5 @@
 import { useChat, Message } from "ai/react";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { CharacterConfig } from "../lib/Characters";
 import ChatMessageList from "./ChatMessageList";
@@ -29,6 +29,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
     handleSubmit,
     setMessages,
     isLoading,
+    append,
   } = useChat({
     id: `chat-${sessionId}-${character.id}`,
     keepLastMessageOnError: true,
@@ -40,6 +41,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
   });
 
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
+  const [streamingContent, setStreamingContent] = useState("");
 
   useEffect(() => {
     async function fetchChatHistory() {
@@ -77,6 +79,23 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
     fetchChatHistory();
   }, [session?.user?.id, character.id, setMessages, character.initialMessage]);
 
+  // Programmatically send a question to the AI
+  const sendQuestion = useCallback((question: string) => {
+    append({
+      id: `user-${Date.now()}`,
+      role: "user",
+      content: question,
+    });
+  }, [append]);
+
+  // Effect to start streaming the initial message on mount
+  useEffect(() => {
+    if (messages?.length < 1 && chatHistory.length < 1) {
+      sendQuestion("Who are you and what do you do?");
+    };
+  }, [sendQuestion, messages?.length, chatHistory.length]);
+
+  // Scroll to last message effect
   useEffect(() => {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
@@ -149,7 +168,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
           )}
           
           <ChatMessageList
-            messages={messages}
+            messages={messages?.slice(1)}
             lastMessageRef={lastMessageRef}
             characterName={character.name}
           />
