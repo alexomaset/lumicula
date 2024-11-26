@@ -34,5 +34,6 @@ export default function AuthButtons() {
         Sign up
       </button>
     </div>
+    
   );
 }

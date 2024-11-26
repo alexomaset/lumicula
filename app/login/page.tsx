@@ -9,25 +9,25 @@ export default function LoginPage() {
   const { data: session } = useSession();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-        <div>
-          {session ? (
-            <>
-              <p>Signed in as {session.user.email}</p>
-              <button onClick={() => signOut()}>Sign out</button>
-            </>
-          ) : (
-            <button
-              onClick={() =>
-                signIn("google", { callbackUrl: "http://localhost:3000" })
-              }
-            >
-              Sign in with Google
-            </button>
-          )}
-        </div>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <form className="bg-white p-8 rounded-lg shadow-md w-96">
+        <input 
+          type="email" 
+          placeholder="Email"
+          className="w-full px-3 py-2 border rounded-md mb-4"
+        />
+        <input 
+          type="password" 
+          placeholder="Password"
+          className="w-full px-3 py-2 border rounded-md mb-4"
+        />
+        <button 
+          type="submit" 
+          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+        >
+          Submit
+        </button>
+      </form>
     </div>
   );
 }
