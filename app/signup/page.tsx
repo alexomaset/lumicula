@@ -10,7 +10,7 @@ export default function SignupPage() {
   const handleSubmit = async (e:  FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Create user API route f
-    const response = await fetch('/api/auth/signup', {
+    const response = await fetch('/api/auth', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
       headers: { 'Content-Type': 'application/json' }

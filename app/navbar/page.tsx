@@ -7,6 +7,7 @@ import Image from "next/image";
 import lumi from "../public/images/lumi.jpeg";
 import AuthButtons from "../components/AuthButtons";
 
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session, status } = useSession();
