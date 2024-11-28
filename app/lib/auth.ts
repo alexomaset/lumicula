@@ -1,8 +1,10 @@
 import { NextAuthOptions } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from '../db';
 import { users, accounts, sessions, verificationTokens } from '../db/schema';
+import { verifyUser } from '../db/queries';
+
 
 export const authOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(db, {
@@ -12,13 +14,35 @@ export const authOptions: NextAuthOptions = {
     verificationTokensTable: verificationTokens,
   }),
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    CredentialsProvider({
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+            return null;
+        }
+        
+        const user = await verifyUser(credentials.email, credentials.password);
+        
+        if (user) {
+            return {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                password: user.password, // Should generally avoid returning password
+                emailVerified: user.emailVerified,
+                image: user.image,
+                role: user.role ?? undefined, // Convert `null` to `undefined`
+            };
+        }
+        return null;
+    }
     })
   ],
   session: {
-    strategy: "database",
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
@@ -40,7 +64,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: '/auth/signin',  // Custom sign-in page (optional)
+    signIn: '/signin',  // Custom sign-in page (optional)
     error: '/auth/error',    // Error page
   },
   debug: process.env.NODE_ENV === 'development',
