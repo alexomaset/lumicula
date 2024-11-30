@@ -1,35 +1,43 @@
-
-// app/signin/page.tsx
 'use client';
-import { signIn } from 'next-auth/react';
-import { FormEvent, useState } from 'react';
 
-export default function SignIn() {
+import { useState } from 'react';
+
+export default function SignUp() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await signIn('credentials', { 
-      email, 
-      password, 
-      callbackUrl: '/' 
-    });
+    try {
+      await registerUser(email, password);
+    } catch (err) {
+      setError('Registration failed. Please try again.');
+    }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input 
-        type="email" 
-        value={email} 
-        onChange={(e) => setEmail(e.target.value)} 
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+        required
       />
-      <input 
-        type="password" 
-        value={password} 
-        onChange={(e) => setPassword(e.target.value)} 
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+        required
       />
-      <button type="submit">Sign In</button>
+      <button type="submit">Sign Up</button>
     </form>
   );
 }
+function registerUser(email: string, password: string) {
+  throw new Error('Function not implemented.');
+}
+

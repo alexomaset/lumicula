@@ -1,8 +1,6 @@
 import { db } from '.';
-import { chat, NewUser, type Chat, type NewChat } from './schema';
+import { chat, type Chat, type NewChat } from './schema';
 import { eq } from 'drizzle-orm';
-import { users, type User } from './schema';
-import { compare, hash } from 'bcrypt';
 
 interface ChatMessage {
    role: 'user' | 'assistant';
@@ -87,49 +85,5 @@ export async function getChatById(chatId: string): Promise<Chat | null> {
   } catch (error) {
     console.error('Error fetching chat:', error);
     throw new Error('Failed to fetch chat from database');
-  }
-}
-
-
-export async function createUser(userData: NewUser): Promise<User> {
-  try {
-      const hashedPassword = await hash(userData.password, 10);
-      const [newUser] = await db
-          .insert(users)
-          .values({ ...userData, password: hashedPassword, createdAt: new Date() })
-          .returning();
-
-      return newUser;
-  } catch (error) {
-      console.error("Error creating user:", error);
-      throw new Error("Failed to create user");
-  }
-}
-export async function getUserByEmail(email: string): Promise<User | null> {
-  try {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email));
-
-    return user || null;
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    throw new Error('Failed to fetch user');
-  }
-}
-
-export async function verifyUser(email: string, password: string): Promise<User | null> {
-  try {
-    const user = await getUserByEmail(email);
-    
-    if (!user) return null;
-
-    const isValidPassword = await compare(password, user.password);
-    
-    return isValidPassword ? user : null;
-  } catch (error) {
-    console.error('Error verifying user:', error);
-    throw new Error('User verification failed');
   }
 }
