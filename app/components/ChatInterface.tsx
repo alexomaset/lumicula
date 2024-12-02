@@ -149,7 +149,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
           )}
           
           <ChatMessageList
-            messages={messages}
+            messages={messages?.slice(1)}
             lastMessageRef={lastMessageRef}
             characterName={character.name}
           />
@@ -168,3 +168,5 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
     </div>
   );
 }
+
+
