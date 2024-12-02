@@ -36,7 +36,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
       character: character.id,
       sessionId: session?.user?.id || "anonymous",
     },
-    initialMessages: []
+    initialMessages: [],
   });
 
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
@@ -45,31 +45,37 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
     async function fetchChatHistory() {
       if (session?.user?.id) {
         try {
-          const response = await fetch(`/api/history?userId=${session.user.id}`);
+          const response = await fetch(
+            `/api/history?userId=${session.user.id}`
+          );
           if (response.ok) {
             const data = await response.json();
-            const characterChats = data.filter((chat: ChatHistoryItem) => 
-              chat.characterId === character.id
+            const characterChats = data.filter(
+              (chat: ChatHistoryItem) => chat.characterId === character.id
             );
             setChatHistory(characterChats);
-            
+
             if (characterChats.length === 0) {
-              setMessages([{
-                id: "system-message",
-                role: "assistant",
-                content: character.initialMessage
-              }]);
+              setMessages([
+                {
+                  id: "system-message",
+                  role: "assistant",
+                  content: character.initialMessage,
+                },
+              ]);
             }
           }
         } catch (error) {
-          console.error('Failed to fetch chat history:', error);
+          console.error("Failed to fetch chat history:", error);
         }
       } else {
-        setMessages([{
-          id: "system-message",
-          role: "assistant",
-          content: character.initialMessage
-        }]);
+        setMessages([
+          {
+            id: "system-message",
+            role: "assistant",
+            content: character.initialMessage,
+          },
+        ]);
       }
       setIsLoadingHistory(false);
     }
@@ -84,9 +90,9 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
   }, [messages]);
 
   const loadChat = (chat: ChatHistoryItem) => {
-    const validMessages = chat.messages.map(msg => ({
+    const validMessages = chat.messages.map((msg) => ({
       ...msg,
-      role: msg.role as Message['role']
+      role: msg.role as Message["role"],
     }));
     setMessages(validMessages);
   };
@@ -106,29 +112,35 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
           {/* Previous Conversations */}
           {session?.user?.id && chatHistory.length > 0 && (
             <div className="space-y-4 mb-8">
-              <h2 className="text-lg font-semibold text-gray-700">Previous Conversations</h2>
+              <h2 className="text-lg font-semibold text-gray-700">
+                Previous Conversations
+              </h2>
               {chatHistory.map((chat) => (
-                <div key={chat.id} onClick={() => loadChat(chat)} className="space-y-4 cursor-pointer">
+                <div
+                  key={chat.id}
+                  onClick={() => loadChat(chat)}
+                  className="space-y-4 cursor-pointer"
+                >
                   {chat.messages.slice(1, 3).map((msg, idx) => (
-                    <div 
-                      key={msg.id}
+                    <div
+                      key={`${msg.id}-${idx}`}
                       className={`flex items-start space-x-3 ${
-                        msg.role === 'assistant' ? 'bg-gray-50' : ''
+                        msg.role === "assistant" ? "bg-gray-50" : ""
                       } rounded-lg p-4 hover:bg-gray-100 transition-colors`}
                     >
-                      {msg.role === 'assistant' && (
+                      {msg.role === "assistant" && (
                         <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
                           {character.name[0]}
                         </div>
                       )}
-                      {msg.role === 'user' && (
+                      {msg.role === "user" && (
                         <div className="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center text-white font-medium">
                           U
                         </div>
                       )}
                       <div className="flex-1 space-y-1">
                         <div className="font-medium">
-                          {msg.role === 'assistant' ? character.name : 'You'}
+                          {msg.role === "assistant" ? character.name : "You"}
                         </div>
                         <div className="text-gray-700">{msg.content}</div>
                       </div>
@@ -140,14 +152,15 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
           )}
 
           {/* Current Conversation */}
-          {(!session?.user?.id || chatHistory.length === 0) && messages.length === 0 && (
-            <div className="text-center text-gray-500 py-4">
-              {session?.user?.id 
-                ? "Start a new conversation below!"
-                : "Sign in to save your conversations"}
-            </div>
-          )}
-          
+          {(!session?.user?.id || chatHistory.length === 0) &&
+            messages.length === 0 && (
+              <div className="text-center text-gray-500 py-4">
+                {session?.user?.id
+                  ? "Start a new conversation below!"
+                  : "Sign in to save your conversations"}
+              </div>
+            )}
+
           <ChatMessageList
             messages={messages?.slice(1)}
             lastMessageRef={lastMessageRef}
@@ -168,5 +181,3 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
     </div>
   );
 }
-
-

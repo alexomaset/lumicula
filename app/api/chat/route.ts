@@ -1,23 +1,29 @@
 // api
 // different charac
+import { getChatsByUserId, saveChat } from '@/app/db/queries';
 import { openai } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { createId } from '@paralleldrive/cuid2';
+import { getServerSession } from "next-auth/next";
+import { convertToCoreMessages, streamText } from 'ai';
+import { authOptions } from '@/app/lib/auth';
+
+
+
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
+  try {
+    const { messages, character } = await req.json();
+    const session = await getServerSession(authOptions);
 
-
-  const { messages, character } = await req.json();
-
-
-  type CharacterType = 'celestialOracle' | 'stellarWisdom' | 'etherealVisions' | 'divinePathways' | 'cosmicHorizons' | 'fateWhisperer';
-
-  const characters: Record<CharacterType, { role: string; content: string }> = {
-    celestialOracle: {
-      role: 'system',
-      content: `name: "Celestial Oracle",
+    type CharacterType = 'celestialOracle' | 'stellarWisdom' | 'etherealVisions' |
+      'divinePathways' | 'cosmicHorizons' | 'fateWhisperer';
+    const characters: Record<CharacterType, { role: string; content: string }> = {
+      celestialOracle: {
+        role: 'system',
+        content: `name: "Celestial Oracle",
     description: "Celestial Oracle is a mysterious and wise guide, gifted with the ability to read the stars and interpret the hidden messages of the universe...",
     
     coreTraits: [
@@ -69,11 +75,11 @@ export async function POST(req: Request) {
         "Avoid fear-based outcomes; frame insights positively."
       ]
     `,
-    },
+      },
 
-    stellarWisdom: {
-      role: 'system',
-      content: `name: Stellar Wisdom,
+      stellarWisdom: {
+        role: 'system',
+        content: `name: Stellar Wisdom,
       description: A profound and enigmatic figure, using thoughtful questions to drive introspection, clarity, and self-awareness. 
       coreTraits: [
         Socratic Questioning: Encourages user-driven insight, avoiding solutions to stimulate self-discovery.
@@ -93,11 +99,11 @@ export async function POST(req: Request) {
           Avoid excessive positivity, opting for direct engagement.
         ]
       }`
-    },
+      },
 
-    etherealVisions: {
-      role: 'system',
-      content: `"name": "Ethereal Visions",
+      etherealVisions: {
+        role: 'system',
+        content: `"name": "Ethereal Visions",
       "description": "Ethereal Visions is a visionary guide who empowers users to recognize how their actions and choices shape their future. Through thoughtful conversations, she helps unlock potential and provides guidance on manifesting one's desired life.",
       "instructions": {
         "overview": "A wise guide encouraging self-discovery and goal-oriented action, Ethereal Visions combines insight with practical advice to foster personal growth.",
@@ -136,11 +142,11 @@ export async function POST(req: Request) {
             "Avoid judgmental tones."
           ]
       }`
-    },
+      },
 
-    divinePathways: {
-      role: 'system',
-      content: ` "name": "Divine Pathways",
+      divinePathways: {
+        role: 'system',
+        content: ` "name": "Divine Pathways",
       "description": "Divine Pathways is a compassionate healer who guides users through love and relationships with gentle wisdom. She offers clarity and healing, helping people reconnect with their true selves.",
       "instructions": {
         "overview": "A compassionate guide in matters of love, Divine Pathways provides empathetic, non-judgmental support for relationship journeys.",
@@ -180,11 +186,11 @@ export async function POST(req: Request) {
           ]
         }
       }`
-    },
+      },
 
-    fateWhisperer: {
-      role: 'system',
-      content: `"name": "Fate Whisperer",
+      fateWhisperer: {
+        role: 'system',
+        content: `"name": "Fate Whisperer",
     "description": "Fate Whisperer is a compassionate and gentle guide, offering soft-spoken wisdom to help you through your everyday challenges. With a soothing presence, he provides kind, intuitive insights that inspire confidence and clarity in life's uncertain moments.",
     "instructions": {
       "overview": "Fate Whisperer is a soft-spoken, compassionate guide who offers wisdom to help users navigate everyday challenges. With a soothing and gentle demeanor, he provides kind and intuitive insights, helping users find confidence and clarity in uncertain moments. Fate Whisperer is a reassuring presence, offering calm guidance that encourages users to trust themselves and embrace life’s journey.",
@@ -235,11 +241,11 @@ export async function POST(req: Request) {
           "Do not pressure users to make quick decisions; instead, encourage reflection and patience."
         ]
       }`
-    },
+      },
 
-    cosmicHorizons: {
-      role: 'system',
-      content: `name: "Cosmic Horizons",
+      cosmicHorizons: {
+        role: 'system',
+        content: `name: "Cosmic Horizons",
     description: "Cosmic Horizons is a stellar guide who interprets the wisdom of the stars, offering clear direction to help you align with your dreams. With cosmic insights, they reveal the steps needed to manifest your deepest desires and unlock your true potential.",
     coreTraits: [
       "Cosmic Insights: Offers advice inspired by celestial phenomena, using astrology, universal principles, and star-inspired metaphors to guide users.",
@@ -289,27 +295,53 @@ export async function POST(req: Request) {
       ]
     }
   `
-    },
+      },
 
 
-  };
+    };
 
+    const enrichedMessages = [
+      characters[(character as CharacterType) || 'celestialOracle'],
+      ...messages
+    ];
 
-  const enrichedMessages = [
-    characters[(character as CharacterType) || 'celestialOracle'],
-    ...messages
-  ];
+    const coreMessages = convertToCoreMessages(enrichedMessages);
+    const chatId = createId();
 
+    console.log('Generated chatId:', chatId);
 
+    const result = await streamText({
+      model: openai('gpt-4o'),
+      messages: coreMessages,
+      onFinish: async ({ responseMessages }) => {
+        // Only save chat if user is authenticated
+        if (session?.user?.id) {
+          try {
+            const allMessages = [...coreMessages, ...responseMessages];
+            await saveChat({
+              id: chatId,
+              messages: allMessages,
+              userId: session.user.id,
+              characterId: character
+            });
 
+            console.log('Chat saved successfully:', {
+              chatId,
+              userId: session.user.id,
+              messageCount: allMessages.length
+            });
+          } catch (error) {
+            console.error('Failed to save chat:', error);
+            // Don't throw here - we don't want to break the stream
+            // but we should log the error
+          }
+        }
+      },
+    });
 
-  const result = await streamText({
-    model: openai('gpt-4o'),
-    messages: enrichedMessages
-  });
-
-
-  console.log(result)
-
-  return result.toDataStreamResponse();
+    return result.toDataStreamResponse();
+  } catch (error) {
+    console.error('Route handler error:', error);
+    return new Response('Internal Server Error', { status: 500 });
+  }
 }
