@@ -11,7 +11,7 @@ import { authOptions } from '@/app/lib/auth';
 
 
 // Allow streaming responses up to 30 seconds
-export const maxDuration = 60;
+export const maxDuration = 30;
 
 export async function POST(req: Request) {
   try {
@@ -332,8 +332,6 @@ export async function POST(req: Request) {
             });
           } catch (error) {
             console.error('Failed to save chat:', error);
-            // Don't throw here - we don't want to break the stream
-            // but we should log the error
           }
         }
       },

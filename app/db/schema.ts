@@ -11,7 +11,60 @@ import {
   integer,
   jsonb,
 } from 'drizzle-orm/pg-core';
+import { z } from 'zod';
 import { createId } from '@paralleldrive/cuid2';
+
+
+export const characters = pgTable('characters', {
+  id: varchar('id', { length: 36 }).$defaultFn(() => createId()).primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  userId: varchar('user_id', { length: 36 }).notNull(),
+  description: text('description'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdateFn(() => new Date()),
+});
+
+export type characters = InferSelectModel<typeof characters>;
+
+export const attachments = pgTable('attachments', {
+  id: varchar('id', { length: 36 }).$defaultFn(() => createId()).primaryKey(),
+  characterId: varchar('character_id', { length: 36 }).notNull(),
+  userId: varchar('user_id', { length: 36 }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  type: varchar('type', { length: 100 }).notNull(),
+  size: integer('size').notNull(),
+  url: text('url').notNull(),
+  storageKey: text('storage_key').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export type attachments = InferSelectModel<typeof attachments>;
+
+// Define relations
+export const characterRelations = relations(characters, ({ many }) => ({
+  attachments: many(attachments),
+}));
+
+export const attachmentRelations = relations(attachments, ({ one }) => ({
+  character: one(characters, {
+    fields: [attachments.characterId],
+    references: [characters.id]
+  }),
+}));
+
+const fileAttachmentSchema = z.object({
+  name: z.string().max(255, "File name too long"),
+  type: z.string(),
+  size: z.number()
+    .max(10 * 1024 * 1024, "File must be less than 10MB") // 10MB limit
+    .min(1, "File cannot be empty"),
+});
+
+const characterSchema = z.object({
+  name: z.string().min(1, "Character name is required").max(255, "Character name too long"),
+  description: z.string().optional(),
+});
+
 
 
 export const users = pgTable('users', {
