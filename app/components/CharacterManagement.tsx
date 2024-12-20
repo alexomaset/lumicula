@@ -1,114 +1,254 @@
-import React, { useState, useRef } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription 
-} from './ui/Card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/Tabs';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/Tabs';
+import { Textarea } from './ui/Input';
+import { Save, Loader2 } from 'lucide-react';
+import { PromptsSection } from './PromptsSection';
+import { Character, INITIAL_CHARACTER } from '../types/types';
+import { ProfileImageUploader } from './ProfileImageUploader';
+import { CoreTraitsSection } from './CoreTraitsSection';
+import { DosAndDontsSection } from './DosAndDontsSection';
+import { CharacterList } from './CharacterList';
+import { useToast } from './ui/usetoast';
 import { 
-  Paperclip, 
-  Edit, 
-  Trash2, 
-  FileText, 
-  Download, 
-  X 
-} from 'lucide-react';
-
-// Types
-interface Attachment {
-  id: string;
-  name: string;
-  type: string;
-  size: number;
-  file: File;
-}
-
-interface Character {
-  id?: string;
-  name: string;
-  attachments: Attachment[];
-}
-
-const INITIAL_CHARACTER: Character = {
-  name: '',
-  attachments: []
-};
+  getCharacters, 
+  createCharacter, 
+  updateCharacter, 
+  deleteCharacter 
+} from '../lib/api';
 
 const CharacterManagement: React.FC = () => {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [characters, setCharacters] = useState<Record<string, Character>>({});
   const [currentCharacter, setCurrentCharacter] = useState<Character>(INITIAL_CHARACTER);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState('list');
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    const newAttachments: Attachment[] = files.map(file => ({
-      id: `attachment_${Date.now()}_${file.name}`,
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      file: file
-    }));
+  // Fetch characters on component mount
+  useEffect(() => {
+    fetchCharacters();
+  }, []);
 
+  const fetchCharacters = async () => {
+    setIsLoading(true);
+    try {
+      const fetchedCharacters = await getCharacters();
+      // Convert array to record for easier access
+      const charactersRecord = fetchedCharacters.reduce((acc: Record<string, Character>, char: Character) => {
+        acc[char.id] = char;
+        return acc;
+      }, {});
+      setCharacters(charactersRecord);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch characters",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Utility function to update a specific field
+  const updateField = (field: keyof Character, value: string) => {
     setCurrentCharacter(prev => ({
       ...prev,
-      attachments: [...(prev.attachments || []), ...newAttachments]
+      [field]: value
     }));
   };
 
-  const handleRemoveAttachment = (attachmentId: string) => {
+  // Core Traits Methods
+  const updateCoreTrait = (index: number, field: 'title' | 'description', value: string) => {
+    setCurrentCharacter(prev => {
+      const updatedTraits = [...prev.coreTraits];
+      updatedTraits[index] = {
+        ...updatedTraits[index],
+        [field]: value
+      };
+      return { ...prev, coreTraits: updatedTraits };
+    });
+  };
+
+  const addCoreTrait = () => {
     setCurrentCharacter(prev => ({
       ...prev,
-      attachments: (prev.attachments || []).filter(
-        attachment => attachment.id !== attachmentId
-      )
+      coreTraits: [...prev.coreTraits, { title: '', description: '' }]
     }));
   };
 
-  const handleDownloadAttachment = (attachment: Attachment) => {
-    const url = URL.createObjectURL(attachment.file);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = attachment.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  const removeCoreTrait = (index: number) => {
+    setCurrentCharacter(prev => ({
+      ...prev,
+      coreTraits: prev.coreTraits.filter((_, i) => i !== index)
+    }));
   };
 
-  const handleAddCharacter = () => {
+  // Prompts Methods
+  const updatePrompt = (index: number, field: keyof Character['prompts'][0], value: string) => {
+    setCurrentCharacter(prev => {
+      const updatedPrompts = [...prev.prompts];
+      updatedPrompts[index] = {
+        ...updatedPrompts[index],
+        [field]: value
+      };
+      return { ...prev, prompts: updatedPrompts };
+    });
+  };
+
+  const addPrompt = () => {
+    setCurrentCharacter(prev => ({
+      ...prev,
+      prompts: [...prev.prompts, { category: '', prompt: '', exampleResponse: '' }]
+    }));
+  };
+
+  const removePrompt = (index: number) => {
+    setCurrentCharacter(prev => ({
+      ...prev,
+      prompts: prev.prompts.filter((_, i) => i !== index)
+    }));
+  };
+
+  // Dos and Don'ts Methods
+  const updateDosAndDonts = (type: 'dos' | 'donts', index: number, value: string) => {
+    setCurrentCharacter(prev => {
+      const updatedSection = [...prev.dosAndDonts[type]];
+      updatedSection[index] = value;
+      return {
+        ...prev,
+        dosAndDonts: {
+          ...prev.dosAndDonts,
+          [type]: updatedSection
+        }
+      };
+    });
+  };
+
+  const addDosOrDonts = (type: 'dos' | 'donts') => {
+    setCurrentCharacter(prev => ({
+      ...prev,
+      dosAndDonts: {
+        ...prev.dosAndDonts,
+        [type]: [...prev.dosAndDonts[type], '']
+      }
+    }));
+  };
+
+  const removeDosOrDonts = (type: 'dos' | 'donts', index: number) => {
+    setCurrentCharacter(prev => ({
+      ...prev,
+      dosAndDonts: {
+        ...prev.dosAndDonts,
+        [type]: prev.dosAndDonts[type].filter((_, i) => i !== index)
+      }
+    }));
+  };
+
+  // Profile Image Methods
+  const handleProfileImageUpload = (file: File) => {
+    setCurrentCharacter((prev) => ({
+      ...prev,
+      profileImage: file,
+    }));
+  };
+
+  const handleRemoveProfileImage = () => {
+    setCurrentCharacter((prev) => {
+      const { profileImage, ...rest } = prev;
+      return rest;
+    });
+  };
+
+  // Character Management Methods
+  const handleAddCharacter = async () => {
     if (!currentCharacter.name.trim()) {
-      alert('Please enter a character name');
+      toast({
+        title: "Validation Error",
+        description: "Please enter a character name",
+        variant: "destructive",
+      });
       return;
     }
 
-    const newId = `character_${Date.now()}`;
-    setCharacters(prev => ({
-      ...prev,
-      [newId]: { ...currentCharacter, id: newId }
-    }));
-    setCurrentCharacter(INITIAL_CHARACTER);
+    setIsSaving(true);
+    try {
+      const newCharacter = await createCharacter(
+        currentCharacter, 
+        currentCharacter.profileImage instanceof File ? currentCharacter.profileImage : undefined
+      );
+      
+      setCharacters(prev => ({
+        ...prev,
+        [newCharacter.id]: newCharacter,
+      }));
+
+      toast({
+        title: "Success",
+        description: "Character created successfully",
+      });
+
+      // Reset form and switch to list view
+      setCurrentCharacter(INITIAL_CHARACTER);
+      setActiveTab('list');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create character",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleUpdateCharacter = () => {
-    if (selectedCharacterId) {
-      if (!currentCharacter.name.trim()) {
-        alert('Please enter a character name');
-        return;
-      }
+  const handleUpdateCharacter = async () => {
+    if (!selectedCharacterId) return;
+    
+    if (!currentCharacter.name.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a character name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const updatedCharacter = await updateCharacter(
+        selectedCharacterId,
+        currentCharacter,
+        currentCharacter.profileImage instanceof File ? currentCharacter.profileImage : undefined
+      );
 
       setCharacters(prev => ({
         ...prev,
-        [selectedCharacterId]: currentCharacter
+        [selectedCharacterId]: updatedCharacter,
       }));
+      
+      toast({
+        title: "Success",
+        description: "Character updated successfully",
+      });
+
       setEditMode(false);
       setSelectedCharacterId(null);
       setCurrentCharacter(INITIAL_CHARACTER);
+      setActiveTab('list');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update character",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -117,144 +257,170 @@ const CharacterManagement: React.FC = () => {
     setCurrentCharacter(character);
     setSelectedCharacterId(characterId);
     setEditMode(true);
+    setActiveTab('add');
   };
 
-  const handleDeleteCharacter = (characterId: string) => {
-    const updatedCharacters = { ...characters };
-    delete updatedCharacters[characterId];
-    setCharacters(updatedCharacters);
+  const handleDeleteCharacter = async (characterId: string) => {
+    try {
+      await deleteCharacter(characterId);
+      
+      const updatedCharacters = { ...characters };
+      delete updatedCharacters[characterId];
+      setCharacters(updatedCharacters);
+      
+      toast({
+        title: "Success",
+        description: "Character deleted successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete character",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle>Character Management</CardTitle>
-        <CardDescription>Add and manage characters with attachments</CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="list">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="list">Character List</TabsTrigger>
             <TabsTrigger value="add">Add/Edit Character</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="list">
-            <div className="grid gap-4">
-              {Object.entries(characters).map(([id, character]) => (
-                <Card key={id} className="flex justify-between items-center p-4">
-                  <div>
-                    <h3 className="font-bold">{character.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {character.attachments ? `${character.attachments.length} attachment(s)` : 'No attachments'}
-                    </p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      onClick={() => handleEditCharacter(id)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="destructive" 
-                      size="icon" 
-                      onClick={() => handleDeleteCharacter(id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </Card>
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex justify-center items-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            ) : (
+              <CharacterList 
+                characters={characters}
+                onEditCharacter={handleEditCharacter}
+                onDeleteCharacter={handleDeleteCharacter}
+              />
+            )}
           </TabsContent>
-          
+
           <TabsContent value="add">
             <div className="space-y-4">
-              <Input 
-                placeholder="Character Name" 
-                className="w-1/2" 
-                value={currentCharacter.name}
-                onChange={(e) => setCurrentCharacter(prev => ({
-                  ...prev, 
-                  name: e.target.value
-                }))}
+              {/* Profile Image Upload */}
+              <ProfileImageUploader 
+               profileImage={
+                currentCharacter.profileImage instanceof File 
+                  ? currentCharacter.profileImage 
+                  : undefined
+              }
+              onUpload={handleProfileImageUpload}
+              onRemove={handleRemoveProfileImage}
               />
 
-              {/* Attachments Section */}
-              <div className="mt-4">
-                <div className="flex justify-between items-center mb-2">
-                  <h4 className="font-semibold">Attachments</h4>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Paperclip className="mr-2 h-4 w-4" /> Upload File
-                  </Button>
-                  <input 
-                    type="file" 
-                    ref={fileInputRef}
-                    className="hidden"
-                    multiple
-                    onChange={handleFileUpload}
+              {/* Character Form */}
+              <div className="space-y-4">
+                {/* Basic Information */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block mb-2">Character Name</label>
+                    <Input 
+                      value={currentCharacter.name}
+                      onChange={(e) => updateField('name', e.target.value)}
+                      placeholder="Enter character name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2">Description</label>
+                    <Textarea 
+                      value={currentCharacter.description ?? ''}
+                      onChange={(e) => updateField('description', e.target.value)}
+                      placeholder="Describe your character"
+                      rows={3}
+                    />
+                  </div>
+                </div>
+
+                {/* Core Traits Section */}
+                <CoreTraitsSection 
+                  coreTraits={currentCharacter.coreTraits}
+                  onAddTrait={addCoreTrait}
+                  onRemoveTrait={removeCoreTrait}
+                  onUpdateTrait={updateCoreTrait}
+                />
+
+                {/* Language Style */}
+                <div>
+                  <label className="block mb-2">Language Style</label>
+                  <Textarea 
+                    value={currentCharacter.description ?? ''}
+                    onChange={(e) => updateField('description', e.target.value)}
+                    placeholder="Describe your character"
+                    rows={3}
                   />
                 </div>
-                
-                {currentCharacter.attachments && currentCharacter.attachments.length > 0 ? (
-                  <div className="space-y-2">
-                    {currentCharacter.attachments.map((attachment) => (
-                      <div 
-                        key={attachment.id} 
-                        className="flex justify-between items-center p-2 border rounded"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <FileText className="h-5 w-5 text-muted-foreground" />
-                          <span className="text-sm">{attachment.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            ({(attachment.size / 1024).toFixed(2)} KB)
-                          </span>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => handleDownloadAttachment(attachment)}
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => handleRemoveAttachment(attachment.id)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+
+                {/* Prompts Section */}
+                <PromptsSection 
+                  prompts={currentCharacter.prompts}
+                  onAddPrompt={addPrompt}
+                  onRemovePrompt={removePrompt}
+                  onUpdatePrompt={updatePrompt}
+                />
+
+                {/* Dos and Don'ts Section */}
+                <DosAndDontsSection 
+                  dos={currentCharacter.dosAndDonts.dos}
+                  donts={currentCharacter.dosAndDonts.donts}
+                  onAddDosOrDonts={addDosOrDonts}
+                  onRemoveDosOrDonts={removeDosOrDonts}
+                  onUpdateDosOrDonts={updateDosAndDonts}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-4">
+                {editMode ? (
+                  <div className="flex space-x-2">
+                    <Button 
+                      onClick={handleUpdateCharacter} 
+                      className="flex-grow"
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="mr-2 h-4 w-4" />
+                      )}
+                      Update Character
+                    </Button>
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => {
+                        setEditMode(false);
+                        setCurrentCharacter(INITIAL_CHARACTER);
+                        setActiveTab('list');
+                      }}
+                      className="flex-grow"
+                      disabled={isSaving}
+                    >
+                      Cancel
+                    </Button>
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No attachments uploaded</p>
-                )}
-              </div>
-              
-              {/* Action Buttons */}
-              <div className="flex space-x-2 mt-4">
-                {editMode ? (
-                  <Button onClick={handleUpdateCharacter}>Update Character</Button>
-                ) : (
-                  <Button onClick={handleAddCharacter}>Add Character</Button>
-                )}
-                {editMode && (
                   <Button 
-                    variant="secondary" 
-                    onClick={() => {
-                      setEditMode(false);
-                      setCurrentCharacter(INITIAL_CHARACTER);
-                    }}
+                    onClick={handleAddCharacter} 
+                    className="w-full"
+                    disabled={isSaving}
                   >
-                    Cancel
+                    {isSaving ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="mr-2 h-4 w-4" />
+                    )}
+                    Save Character
                   </Button>
                 )}
               </div>

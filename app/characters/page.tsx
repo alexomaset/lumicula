@@ -1,6 +1,6 @@
 "use client";
 
-import CharacterManagement from '../components/CharacterManagement';
+import { CharacterManagement } from "../components";
 
 export default function CharactersPage() {
   return (

@@ -1,7 +1,9 @@
+"use client";
+
 import { useChat, Message } from "ai/react";
 import { useRef, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { CharacterConfig } from "../lib/Characters";
+import type { Character } from "../db/schema";
 import ChatMessageList from "./ChatMessageList";
 import ChatInputForm from "./ChatInput";
 
@@ -13,7 +15,7 @@ interface ChatHistoryItem {
 }
 
 interface ChatInterfaceProps {
-  character: CharacterConfig;
+  character: Character;  // Using the Character type from your schema
 }
 
 export default function ChatInterface({ character }: ChatInterfaceProps) {
@@ -21,6 +23,19 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
   const sessionId = session?.user?.id || "anonymous";
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+
+  // Get initial message from character's prompts or use a default
+  const getInitialMessage = (character: Character) => {
+    // Check prompts array for an initial greeting
+    const initialPrompt = character.prompts?.find(prompt => 
+      prompt.category?.toLowerCase().includes('greeting') || 
+      prompt.category?.toLowerCase().includes('initial')
+    );
+
+    // If found, use the example response, otherwise use a default constructed from the character's info
+    return initialPrompt?.exampleResponse || 
+           `Hello! I am ${character.name}. ${character.description || ''} How can I assist you today?`;
+  };
 
   const {
     messages,
@@ -33,7 +48,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
     id: `chat-${sessionId}-${character.id}`,
     keepLastMessageOnError: true,
     body: {
-      character: character.id,
+      characterId: character.id,
       sessionId: session?.user?.id || "anonymous",
     },
     initialMessages: [],
@@ -46,21 +61,18 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
       if (session?.user?.id) {
         try {
           const response = await fetch(
-            `/api/history?userId=${session.user.id}`
+            `/api/history?userId=${session.user.id}&characterId=${character.id}`
           );
           if (response.ok) {
             const data = await response.json();
-            const characterChats = data.filter(
-              (chat: ChatHistoryItem) => chat.characterId === character.id
-            );
-            setChatHistory(characterChats);
+            setChatHistory(data);
 
-            if (characterChats.length === 0) {
+            if (data.length === 0) {
               setMessages([
                 {
                   id: "system-message",
                   role: "assistant",
-                  content: character.initialMessage,
+                  content: getInitialMessage(character),
                 },
               ]);
             }
@@ -73,7 +85,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
           {
             id: "system-message",
             role: "assistant",
-            content: character.initialMessage,
+            content: getInitialMessage(character),
           },
         ]);
       }
@@ -81,7 +93,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
     }
 
     fetchChatHistory();
-  }, [session?.user?.id, character.id, setMessages, character.initialMessage]);
+  }, [session?.user?.id, character, setMessages]);
 
   useEffect(() => {
     if (lastMessageRef.current) {

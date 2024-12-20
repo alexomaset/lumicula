@@ -1,79 +1,62 @@
 import { db } from '.';
-import { chat, type Chat, type NewChat } from './schema';
-import { eq } from 'drizzle-orm';
-import { characters, attachments } from './schema'; // Drizzle schema
-import { v4 as uuidv4 } from 'uuid';
-import { createId } from '@paralleldrive/cuid2';
-import { put, del } from '@vercel/blob';
-import { z } from 'zod';
-interface ChatMessage {
-   role: 'user' | 'assistant';
-   content: string;
-   timestamp?: number;
-   // Add other relevant message properties
-}
+import { chat, NewCharacter, type Chat, type NewChat } from './schema';
+import { and, eq } from 'drizzle-orm';
+import { characters, Character } from './schema'; // Drizzle schema
 
-// Validation Schema
-const fileAttachmentSchema = z.object({
-  name: z.string().max(255),
-  type: z.string(),
-  size: z.number().max(10 * 1024 * 1024), // 10MB max file size
-});
 
-const characterSchema = z.object({
-  name: z.string().min(1, "Character name is required").max(255, "Character name too long"),
-  description: z.string().optional(),
-});
+export const characterQueries = {
+  // Create a new character
+  create: async (userId: string, character: NewCharacter) => {
+    return await db.insert(characters).values({
+      ...character,
+      userId
+    }).returning();
+  },
 
-export async function uploadCharacterAttachments(
-  files: File[], 
-  characterId: string, 
-  userId: string
-) {
-  const uploadPromises = files.map(async (file) => {
-    // Validate file
-    try {
-      fileAttachmentSchema.parse({
-        name: file.name,
-        type: file.type,
-        size: file.size
-      });
-    } catch (validationError) {
-      console.error('File validation failed:', validationError);
-      throw new Error(`Invalid file: ${file.name}`);
-    }
+  // Get all characters for a user
+  getByUserId: async (userId: string) => {
+    return await db.select().from(characters)
+      .where(eq(characters.userId, userId))
+      .orderBy(characters.createdAt);
+  },
 
-    // Generate unique filename
-    const uniqueFileName = `characters/${userId}/${characterId}/${file.name}`;
+  // Get a specific character by ID
+  getById: async (id: string, userId: string) => {
+    const result = await db.select()
+      .from(characters)
+      .where(and(
+        eq(characters.id, id),
+        eq(characters.userId, userId)
+      ))
+      .limit(1);
+    
+    return result[0] || null;
+  },
 
-    // Upload to Vercel Blob
-    const blobResult = await put(uniqueFileName, file, {
-      access: 'public',
-      contentType: file.type, // Use contentType instead of handleContentType
-    });
-
-    // Create attachment record in database
-    const [attachmentRecord] = await db
-      .insert(attachments)
-      .values({
-        id: createId(),
-        characterId,
-        userId,
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        url: blobResult.url,
-        storageKey: blobResult.pathname
+  // Update a character
+  update: async (id: string, userId: string, updates: Partial<NewCharacter>) => {
+    return await db.update(characters)
+      .set({
+        ...updates,
+        updatedAt: new Date()
       })
+      .where(and(
+        eq(characters.id, id),
+        eq(characters.userId, userId)
+      ))
       .returning();
+  },
 
-    return attachmentRecord;
-  });
-
-  // Process all file uploads
-  return Promise.all(uploadPromises);
-}
-
+  // Delete a character
+  delete: async (id: string, userId: string) => {
+    return await db.delete(characters)
+      .where(and(
+        eq(characters.id, id),
+        eq(characters.userId, userId)
+      ))
+      .returning();
+  }
+};
 
 export async function saveChat({
   id,

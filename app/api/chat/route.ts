@@ -6,8 +6,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { getServerSession } from "next-auth/next";
 import { convertToCoreMessages, streamText } from 'ai';
 import { authOptions } from '@/app/lib/auth';
-
-
+import { getCharacterById, generateSystemMessage } from '@/app/utils/character-management';
 
 
 // Allow streaming responses up to 30 seconds
@@ -17,6 +16,13 @@ export async function POST(req: Request) {
   try {
     const { messages, character } = await req.json();
     const session = await getServerSession(authOptions);
+
+    const characterDocument = await getCharacterById(character);
+
+    if (!characterDocument) {
+      return new Response('Character not found', { status: 404 });
+    }
+
 
     type CharacterType = 'celestialOracle' | 'stellarWisdom' | 'etherealVisions' |
       'divinePathways' | 'cosmicHorizons' | 'fateWhisperer';
@@ -300,8 +306,10 @@ export async function POST(req: Request) {
 
     };
 
+    const systemMessage = generateSystemMessage(character);
+
     const enrichedMessages = [
-      characters[(character as CharacterType) || 'celestialOracle'],
+      systemMessage,
       ...messages
     ];
 
