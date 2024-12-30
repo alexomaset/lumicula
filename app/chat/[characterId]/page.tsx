@@ -4,17 +4,40 @@ import ChatInterface from '@/app/components/ChatInterface';
 import { db } from '@/app/db';
 import { characters } from '@/app/db/schema';
 import { eq } from 'drizzle-orm';
+import { Suspense } from 'react';
 
-export default async function ChatPage({
-  params
+// Loading component remains the same
+function LoadingState() {
+  return (
+    <div className="flex h-screen flex-col">
+      <header className="bg-white border-b px-4 py-3 flex items-center">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
+          <div>
+            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+            <div className="h-3 w-48 bg-gray-200 rounded mt-2 animate-pulse" />
+          </div>
+        </div>
+      </header>
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full flex items-center justify-center">
+          <div className="text-gray-500">Loading chat...</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Character content component
+async function CharacterContent({
+  characterId
 }: {
-  params: { characterId: string }
+  characterId: string;
 }) {
-  // Fetch character directly from the database
   const [character] = await db
     .select()
     .from(characters)
-    .where(eq(characters.id, params.characterId));
+    .where(eq(characters.id, characterId));
 
   if (!character) {
     notFound();
@@ -22,7 +45,6 @@ export default async function ChatPage({
 
   return (
     <div className="flex h-screen flex-col">
-      {/* Character Header */}
       <header className="bg-white border-b px-4 py-3 flex items-center">
         <div className="flex items-center space-x-3">
           {character.profileImage ? (
@@ -47,10 +69,24 @@ export default async function ChatPage({
         </div>
       </header>
 
-      {/* Chat Interface */}
       <div className="flex-1 overflow-hidden">
         <ChatInterface character={character} />
       </div>
     </div>
+  );
+}
+
+// Main page component
+export default async function ChatPage({
+  params
+}: {
+  params: { characterId: string }
+}) {
+  const characterId = await params.characterId;
+  
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <CharacterContent characterId={characterId} />
+    </Suspense>
   );
 }

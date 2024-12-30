@@ -1,9 +1,10 @@
-import LoadingSpinner from "./LoadingSpinner";
+// ChatInput.tsx
+import { FormEvent } from 'react';
 
 interface ChatInputFormProps {
   input: string;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
 }
 
@@ -11,28 +12,31 @@ export default function ChatInputForm({
   input,
   handleInputChange,
   handleSubmit,
-  isLoading,
+  isLoading
 }: ChatInputFormProps) {
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="fixed bottom-0 left-0 right-0 bg-white p-4 border-t flex gap-2 z-10 max-w-4xl mx-auto"
-    >
-      <input
-        name="prompt"
-        value={input}
-        onChange={handleInputChange}
-        className="flex-1 p-3 border rounded-lg text-base"
-        placeholder="Type your message..."
-        disabled={isLoading}
-      />
-      <button
-        type="submit"
-        className="px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-base"
-        disabled={isLoading}
-      >
-        {isLoading ? <LoadingSpinner /> : "Send"}
-      </button>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="relative">
+        <textarea
+          value={input}
+          onChange={handleInputChange}
+          placeholder="Type your message..."
+          rows={3}
+          className="w-full rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none p-3 pr-20"
+          disabled={isLoading}
+        />
+        <button
+          type="submit"
+          disabled={isLoading || !input.trim()}
+          className={`absolute bottom-3 right-3 px-4 py-1 rounded-md ${
+            isLoading || !input.trim()
+              ? 'bg-gray-300 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600'
+          } text-white transition-colors`}
+        >
+          {isLoading ? 'Sending...' : 'Send'}
+        </button>
+      </div>
     </form>
   );
 }

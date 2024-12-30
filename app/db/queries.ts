@@ -1,45 +1,105 @@
 import { db } from '.';
-import { chat, NewCharacter, type Chat, type NewChat } from './schema';
-import { and, eq } from 'drizzle-orm';
-import { characters, Character } from './schema'; // Drizzle schema
+import { chat, type Chat, type NewChat } from './schema';
+import { and, eq, InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import { characters } from './schema'; // Drizzle schema
+import { createId } from '@paralleldrive/cuid2';
 
+type CoreTrait = {
+  title: string;
+  description: string;
+};
+
+type Prompt = {
+  category: string;
+  prompt: string;
+  exampleResponse: string;
+};
+
+type DosAndDonts = {
+  dos: string[];
+  donts: string[];
+};
+
+export type Character = InferSelectModel<typeof characters>;
+export type NewCharacter = InferInsertModel<typeof characters>;
 
 export const characterQueries = {
   // Create a new character
-  create: async (userId: string, character: NewCharacter) => {
+  create: async (userId: string, character: Omit<NewCharacter, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => {
     return await db.insert(characters).values({
+      id: createId(),
+      userId,
       ...character,
-      userId
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      // Ensure proper typing for JSON fields
+      coreTraits: character.coreTraits || [],
+      prompts: character.prompts || [],
+      dosAndDonts: character.dosAndDonts || { dos: [], donts: [] }
     }).returning();
   },
 
-  // Get all characters for a user
-  getByUserId: async (userId: string) => {
-    return await db.select().from(characters)
-      .where(eq(characters.userId, userId))
-      .orderBy(characters.createdAt);
+  // Get all public characters and user's private characters
+  getAccessibleCharacters: async (userId?: string) => {
+    if (userId) {
+      // If user is logged in, get public characters + their private ones
+      return await db
+        .select()
+        .from(characters)
+        .where(eq(characters.userId, userId))
+        .orderBy(characters.createdAt);
+    } else {
+      // If no user, get all characters (since we don't have isPublic flag)
+      return await db
+        .select()
+        .from(characters)
+        .orderBy(characters.createdAt);
+    }
   },
 
   // Get a specific character by ID
-  getById: async (id: string, userId: string) => {
-    const result = await db.select()
+  getById: async (id: string): Promise<Character | null> => {
+    const result = await db
+      .select()
       .from(characters)
-      .where(and(
-        eq(characters.id, id),
-        eq(characters.userId, userId)
-      ))
+      .where(eq(characters.id, id))
       .limit(1);
     
     return result[0] || null;
   },
 
+  // Get all characters for a specific user
+  getByUserId: async (userId: string): Promise<Character[]> => {
+    return await db
+      .select()
+      .from(characters)
+      .where(eq(characters.userId, userId))
+      .orderBy(characters.createdAt);
+  },
+
   // Update a character
-  update: async (id: string, userId: string, updates: Partial<NewCharacter>) => {
-    return await db.update(characters)
-      .set({
-        ...updates,
-        updatedAt: new Date()
+  update: async (
+    id: string, 
+    userId: string, 
+    updates: Partial<Omit<NewCharacter, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>
+  ) => {
+    // Validate JSON fields before update
+    const validatedUpdates = {
+      ...updates,
+      updatedAt: new Date(),
+      ...(updates.coreTraits && { 
+        coreTraits: validateCoreTraits(updates.coreTraits) 
+      }),
+      ...(updates.prompts && { 
+        prompts: validatePrompts(updates.prompts) 
+      }),
+      ...(updates.dosAndDonts && { 
+        dosAndDonts: validateDosAndDonts(updates.dosAndDonts) 
       })
+    };
+
+    return await db.update(characters)
+      .set(validatedUpdates)
       .where(and(
         eq(characters.id, id),
         eq(characters.userId, userId)
@@ -56,6 +116,83 @@ export const characterQueries = {
       ))
       .returning();
   }
+};
+
+// Validation helpers
+function validateCoreTraits(traits: unknown): CoreTrait[] {
+  if (!Array.isArray(traits)) return [];
+  
+  return traits.filter((trait): trait is CoreTrait => 
+    typeof trait === 'object' &&
+    trait !== null &&
+    typeof (trait as CoreTrait).title === 'string' &&
+    typeof (trait as CoreTrait).description === 'string'
+  );
+}
+
+function validatePrompts(prompts: unknown): Prompt[] {
+  if (!Array.isArray(prompts)) return [];
+  
+  return prompts.filter((prompt): prompt is Prompt => 
+    typeof prompt === 'object' &&
+    prompt !== null &&
+    typeof (prompt as Prompt).category === 'string' &&
+    typeof (prompt as Prompt).prompt === 'string' &&
+    typeof (prompt as Prompt).exampleResponse === 'string'
+  );
+}
+
+function validateDosAndDonts(dosAndDonts: unknown): DosAndDonts {
+  if (
+    typeof dosAndDonts !== 'object' ||
+    dosAndDonts === null ||
+    !Array.isArray((dosAndDonts as DosAndDonts).dos) ||
+    !Array.isArray((dosAndDonts as DosAndDonts).donts)
+  ) {
+    return { dos: [], donts: [] };
+  }
+
+  return {
+    dos: (dosAndDonts as DosAndDonts).dos.filter(item => typeof item === 'string'),
+    donts: (dosAndDonts as DosAndDonts).donts.filter(item => typeof item === 'string')
+  };
+}
+
+// Helper to generate system message from character data
+export const generateSystemMessage = (character: Character): string => {
+  const traits = character.coreTraits
+    ?.map(trait => `${trait.title}: ${trait.description}`)
+    .join('\n') || '';
+
+  const dos = character.dosAndDonts?.dos
+    ?.map(item => `- Do: ${item}`)
+    .join('\n') || '';
+
+  const donts = character.dosAndDonts?.donts
+    ?.map(item => `- Don't: ${item}`)
+    .join('\n') || '';
+
+  const prompts = character.prompts
+    ?.map(p => `${p.category}:\n${p.prompt}\nExample: ${p.exampleResponse}`)
+    .join('\n\n') || '';
+
+  return `
+Character: ${character.name}
+${character.description || ''}
+
+Core Traits:
+${traits}
+
+Guidelines:
+${dos}
+${donts}
+
+Language Style:
+${character.languageStyle || ''}
+
+Example Interactions:
+${prompts}
+`.trim();
 };
 
 export async function saveChat({

@@ -1,13 +1,35 @@
+import React from 'react';
+
+interface MessageContent {
+  text?: string;
+  type?: string;
+  [key: string]: any;
+}
+
+interface Message {
+  id: string;
+  role: string;
+  content: string | MessageContent;
+}
+
 interface ChatMessageListProps {
-  messages: {
-    id: string;
-    role: string;
-    content: string;
-  }[];
+  messages: Message[];
   lastMessageRef?: React.RefObject<HTMLDivElement>;
   characterName: string;
   isPreview?: boolean;
 }
+
+const formatContent = (content: string | MessageContent): string => {
+  if (typeof content === 'string') {
+    return content;
+  }
+  
+  if (content.text) {
+    return content.text;
+  }
+  
+  return JSON.stringify(content);
+};
 
 export default function ChatMessageList({
   messages,
@@ -16,11 +38,11 @@ export default function ChatMessageList({
   isPreview = false,
 }: ChatMessageListProps) {
   // Add a type guard and filtering to ensure valid messages
-  const validMessages = messages.filter(message => 
-    message && 
-    typeof message.id === 'string' && 
-    typeof message.content === 'string' && 
-    ['user', 'assistant'].includes(message.role)
+  const validMessages = messages.filter((message): message is Message =>
+    message &&
+    typeof message.id === 'string' &&
+    ['user', 'assistant'].includes(message.role) &&
+    (typeof message.content === 'string' || typeof message.content === 'object')
   );
 
   // Handle empty state
@@ -31,7 +53,7 @@ export default function ChatMessageList({
       </div>
     );
   }
-
+    
   return (
     <div className={`space-y-4 ${isPreview ? 'opacity-75' : ''}`}>
       {validMessages.map((message, index) => (
@@ -47,11 +69,8 @@ export default function ChatMessageList({
           <div className="font-bold mb-1">
             {message.role === "user" ? "You:" : `${characterName}:`}
           </div>
-          <div>
-            {/* Add additional safety for content rendering */}
-            {typeof message.content === 'string' 
-              ? message.content 
-              : JSON.stringify(message.content)}
+          <div className="whitespace-pre-wrap">
+            {formatContent(message.content)}
           </div>
         </div>
       ))}
