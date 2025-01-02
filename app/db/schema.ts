@@ -7,10 +7,27 @@ import {
   text,
   integer,
   jsonb,
+  boolean,
 } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
 import { createId } from '@paralleldrive/cuid2';
 
+
+export type CoreTrait = {
+  title: string;
+  description: string;
+};
+
+export type Prompt = {
+  category: string;
+  prompt: string;
+  exampleResponse: string;
+};
+
+export type DosAndDonts = {
+  dos: string[];
+  donts: string[];
+};
 
 export const characters = pgTable('characters', {
   id: varchar('id', { length: 36 }).$defaultFn(() => createId()).primaryKey(),
@@ -19,16 +36,10 @@ export const characters = pgTable('characters', {
   description: text('description'),
   profileImage: varchar('profile_image', { length: 512 }),
   languageStyle: text('language_style'),
-  coreTraits: jsonb('core_traits').$type<Array<{title: string, description: string}>>(),
-  prompts: jsonb('prompts').$type<Array<{
-    category: string, 
-    prompt: string, 
-    exampleResponse: string
-  }>>(),
-  dosAndDonts: jsonb('dos_and_donts').$type<{
-    dos: string[],
-    donts: string[]
-  }>(),
+  coreTraits: jsonb('core_traits').$type<CoreTrait[]>(),
+  prompts: jsonb('prompts').$type<Prompt[]>(),
+  dosAndDonts: jsonb('dos_and_donts').$type<DosAndDonts>(),
+  isPublished: boolean('is_published').notNull().default(true),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().$onUpdateFn(() => new Date()),
 });
@@ -36,6 +47,31 @@ export const characters = pgTable('characters', {
 export type Character = InferSelectModel<typeof characters>;
 export type NewCharacter = InferInsertModel<typeof characters>;
 
+export const CoreTraitSchema = z.object({
+  title: z.string(),
+  description: z.string()
+});
+
+export const PromptSchema = z.object({
+  category: z.string(),
+  prompt: z.string(),
+  exampleResponse: z.string()
+});
+
+export const DosAndDontsSchema = z.object({
+  dos: z.array(z.string()),
+  donts: z.array(z.string())
+});
+
+export const CharacterSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().nullable().optional(),
+  profileImage: z.string().nullable().optional(),
+  languageStyle: z.string().optional(),
+  coreTraits: z.array(CoreTraitSchema),
+  prompts: z.array(PromptSchema),
+  dosAndDonts: DosAndDontsSchema
+});
 
 export const users = pgTable('users', {
   id: text('id').$defaultFn(() => createId()).primaryKey().notNull(),

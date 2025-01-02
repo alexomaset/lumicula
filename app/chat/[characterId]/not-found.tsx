@@ -6,7 +6,7 @@ export default function NotFound() {
       <div className="text-center">
         <h2 className="text-xl font-semibold mb-4">Character Not Found</h2>
         <p className="text-gray-600 mb-4">
-          The character you're looking for doesn't exist or has been removed.
+          The character youre looking for doesnt exist or has been removed.
         </p>
         <Link 
           href="/"

@@ -1,51 +1,20 @@
 import { db } from "@/app/db";
-import { characters } from "@/app/db/schema";
+import { characters, CharacterSchema } from "@/app/db/schema";
 import { authOptions } from "@/app/lib/auth";
 import { uploadImage } from "@/app/lib/upload";
-import { eq } from "drizzle-orm";
 import { getServerSession } from "next-auth/next";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-const CoreTraitSchema = z.object({
-  title: z.string(),
-  description: z.string()
-});
 
-const PromptSchema = z.object({
-  category: z.string(),
-  prompt: z.string(),
-  exampleResponse: z.string()
-});
 
-const DosAndDontsSchema = z.object({
-  dos: z.array(z.string()),
-  donts: z.array(z.string())
-});
-
-const CharacterSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
-  profileImage: z.string().nullable().optional(),
-  languageStyle: z.string().optional(),
-  coreTraits: z.array(CoreTraitSchema),
-  prompts: z.array(PromptSchema),
-  dosAndDonts: DosAndDontsSchema
-});
-
-export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export async function GET() {
   try {
-    const userCharacters = await db.query.characters.findMany({
-      where: eq(characters.userId, session.user.id),
+    const allCharacters = await db.query.characters.findMany({
       orderBy: characters.createdAt,
     });
 
-    return NextResponse.json(userCharacters);
+    return NextResponse.json(allCharacters);
   } catch (error) {
     console.error('Failed to fetch characters:', error);
     return NextResponse.json(
@@ -54,7 +23,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {

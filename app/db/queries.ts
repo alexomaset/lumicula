@@ -20,6 +20,12 @@ type DosAndDonts = {
   donts: string[];
 };
 
+interface NormalizedMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: Date;
+}
+
 export type Character = InferSelectModel<typeof characters>;
 export type NewCharacter = InferInsertModel<typeof characters>;
 
@@ -194,6 +200,42 @@ Example Interactions:
 ${prompts}
 `.trim();
 };
+function normalizeMessage(message: any): NormalizedMessage {
+  // Handle array format: [{text, type}]
+  if (Array.isArray(message) && message[0]?.text && message[0]?.type) {
+    return {
+      role: message[0].type === 'human' ? 'user' : 'assistant',
+      content: message[0].text,
+      timestamp: new Date(message[0].timestamp || new Date())
+    };
+  }
+
+  // Handle object format: {text, type}
+  if (message.text && message.type) {
+    return {
+      role: message.type === 'human' ? 'user' : 'assistant',
+      content: message.text,
+      timestamp: new Date(message.timestamp || new Date())
+    };
+  }
+
+  // Handle standard format: {role, content}
+  if (message.role && message.content) {
+    return {
+      role: message.role,
+      content: message.content,
+      timestamp: new Date(message.timestamp || new Date())
+    };
+  }
+
+  // Handle legacy or unknown formats
+  console.warn('Unknown message format:', message);
+  return {
+    role: 'assistant',
+    content: typeof message === 'string' ? message : JSON.stringify(message),
+    timestamp: new Date()
+  };
+}
 
 export async function saveChat({
   id,
@@ -207,39 +249,7 @@ export async function saveChat({
   characterId?: string;
 }): Promise<Chat> {
   try {
-    // Normalize messages to ensure consistent structure
-    const normalizedMessages = messages.map(msg => {
-      // If message is in the [{text, type}] array format
-      if (Array.isArray(msg) && msg[0]?.text && msg[0]?.type) {
-        return {
-          role: msg[0].type === 'human' ? 'user' : 'assistant',
-          content: msg[0].text,
-          timestamp: new Date()
-        };
-      }
-
-      // If message is already in {text, type} object format
-      if (msg.text && msg.type) {
-        return {
-          role: msg.type === 'human' ? 'user' : 'assistant',
-          content: msg.text,
-          timestamp: new Date()
-        };
-      }
-
-      // If message is in the standard {role, content} format
-      if (msg.role && msg.content) {
-        return msg;
-      }
-
-      // Fallback for unexpected formats
-      console.error('Unexpected message format:', msg);
-      return {
-        role: 'assistant',
-        content: JSON.stringify(msg),
-        timestamp: new Date()
-      };
-    });
+    const normalizedMessages = messages.map(normalizeMessage);
 
     const [savedChat] = await db
       .insert(chat)
@@ -259,6 +269,7 @@ export async function saveChat({
     throw new Error('Failed to save chat to database');
   }
 }
+
 export async function getChatsByUserId(userId: string): Promise<Chat[]> {
   try {
     const chats = await db
@@ -267,29 +278,12 @@ export async function getChatsByUserId(userId: string): Promise<Chat[]> {
       .where(eq(chat.userId, userId))
       .orderBy(chat.updatedAt);
 
-    // Normalize messages to ensure consistent format
+    // Normalize all messages in all chats
     return chats.map(chatItem => ({
       ...chatItem,
-      messages: chatItem.messages.map(msg => {
-        // Handle [{text, type}] array format
-        if (Array.isArray(msg) && msg[0]?.text && msg[0]?.type) {
-          return {
-            role: msg[0].type === 'human' ? 'user' : 'assistant',
-            content: msg[0].text,
-            timestamp: new Date()
-          };
-        }
-        // Handle {text, type} object format
-        if (msg.text && msg.type) {
-          return {
-            role: msg.type === 'human' ? 'user' : 'assistant',
-            content: msg.text,
-            timestamp: new Date()
-          };
-        }
-        // Return as-is if already in correct format
-        return msg;
-      })
+      messages: Array.isArray(chatItem.messages) 
+        ? chatItem.messages.map(normalizeMessage)
+        : []
     }));
   } catch (error) {
     console.error('Error fetching chats:', error);
@@ -304,7 +298,15 @@ export async function getChatById(chatId: string): Promise<Chat | null> {
       .from(chat)
       .where(eq(chat.id, chatId));
     
-    return foundChat || null;
+    if (!foundChat) return null;
+
+    // Normalize messages before returning
+    return {
+      ...foundChat,
+      messages: Array.isArray(foundChat.messages)
+        ? foundChat.messages.map(normalizeMessage)
+        : []
+    };
   } catch (error) {
     console.error('Error fetching chat:', error);
     throw new Error('Failed to fetch chat from database');

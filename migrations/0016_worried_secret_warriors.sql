@@ -1,0 +1,1 @@
+ALTER TABLE "characters" ADD COLUMN "is_published" boolean DEFAULT true NOT NULL;

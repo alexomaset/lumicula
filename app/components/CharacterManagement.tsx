@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/Tabs';
 import { Button } from './ui/Button';
@@ -30,17 +30,12 @@ const CharacterManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState('list');
 
   // Fetch characters on component mount
-  useEffect(() => {
-    fetchCharacters();
-  }, []);
-
-  const fetchCharacters = async () => {
+  const fetchCharacters = useCallback(async () => {
     setIsLoading(true);
     try {
       const fetchedCharacters = await getCharacters();
-      // Convert array to record for easier access
       const charactersRecord = fetchedCharacters.reduce((acc: Record<string, Character>, char: Character) => {
-        acc[char.id] = char;
+        acc[char.id!] = char;
         return acc;
       }, {});
       setCharacters(charactersRecord);
@@ -53,10 +48,15 @@ const CharacterManagement: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
+  
+  useEffect(() => {
+    fetchCharacters();
+  }, [fetchCharacters]);
 
   // Utility function to update a specific field
-  const updateField = (field: keyof Character, value: string) => {
+
+  const updateField = <K extends keyof Character>(field: K, value: Character[K]) => {
     setCurrentCharacter(prev => ({
       ...prev,
       [field]: value
@@ -150,19 +150,18 @@ const CharacterManagement: React.FC = () => {
     }));
   };
 
-  // Profile Image Methods
   const handleProfileImageUpload = (file: File) => {
-    setCurrentCharacter((prev) => ({
+    setCurrentCharacter(prev => ({
       ...prev,
-      profileImage: file,
+      profileImage: file
     }));
   };
 
   const handleRemoveProfileImage = () => {
-    setCurrentCharacter((prev) => {
-      const { profileImage, ...rest } = prev;
-      return rest;
-    });
+    setCurrentCharacter(prev => ({
+      ...prev,
+      profileImage: null
+    }));
   };
 
   // Character Management Methods

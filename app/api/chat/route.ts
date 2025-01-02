@@ -12,15 +12,7 @@ export async function POST(req: Request) {
   try {
     const { messages, characterId } = await req.json();
     const session = await getServerSession(authOptions);
-
-    // Ensure user is authenticated
-    if (!session?.user?.id) {
-      return new Response('Unauthorized', { 
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
+    
     // Fetch character from database
     const character = await characterQueries.getById(characterId);
     if (!character) {
@@ -45,47 +37,32 @@ export async function POST(req: Request) {
     const coreMessages = convertToCoreMessages(enrichedMessages);
     const chatId = createId();
 
-    console.log('Starting new chat:', {
-      chatId,
-      userId: session.user.id,
-      characterId,
-      messageCount: messages.length
-    });
+    // Only attempt to save chat if user is authenticated
+    const onFinish = session?.user?.id 
+      ? async ({ responseMessages }: { responseMessages: any[] }) => {
+          try {
+            const allMessages = [...coreMessages, ...responseMessages];
+            await saveChat({
+              id: chatId,
+              messages: allMessages,
+              userId: session.user.id,
+              characterId
+            });
+          } catch (error) {
+            console.error('Failed to save chat:', error);
+          }
+        }
+      : undefined;
 
     const result = await streamText({
-      model: openai('gpt-4o'), // Make sure this matches your OpenAI model configuration
+      model: openai('gpt-4o'),
       messages: coreMessages,
-      onFinish: async ({ responseMessages }) => {
-        try {
-          const allMessages = [...coreMessages, ...responseMessages];
-          await saveChat({
-            id: chatId,
-            messages: allMessages,
-            userId: session.user.id,
-            characterId
-          });
-
-          console.log('Chat saved successfully:', {
-            chatId,
-            userId: session.user.id,
-            messageCount: allMessages.length
-          });
-        } catch (error) {
-          console.error('Failed to save chat:', error);
-          // Consider implementing a retry mechanism or queue system for failed saves
-        }
-      },
+      onFinish,
     });
 
     return result.toDataStreamResponse();
   } catch (error) {
     console.error('Route handler error:', error);
-    if (error instanceof Error) {
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

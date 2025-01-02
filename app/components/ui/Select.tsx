@@ -21,10 +21,10 @@ export const Select: React.FC<SelectProps> = ({ value, onValueChange, children }
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="relative w-full">
+    (<div className="relative w-full">
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child) && child.type === SelectTrigger) {
-          return React.cloneElement(child as React.ReactElement, {
+          return React.cloneElement(child as React.ReactElement<any>, {
             onClick: () => setIsOpen(!isOpen)
           });
         }
@@ -39,7 +39,7 @@ export const Select: React.FC<SelectProps> = ({ value, onValueChange, children }
           })}
         </div>
       )}
-    </div>
+    </div>)
   );
 };
 

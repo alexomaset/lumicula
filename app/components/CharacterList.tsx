@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/Card';
+import Image from 'next/image';
 
 interface CharacterListProps {
   characters: Record<string, Character>;
@@ -64,10 +65,12 @@ export const CharacterList: React.FC<CharacterListProps> = ({
           <CardContent>
             <div className="space-y-2">
               {character.profileImage && typeof character.profileImage === 'string' && (
-                <img
+                <Image
                   src={character.profileImage}
                   alt={character.name}
-                  className="w-full h-32 object-cover rounded-md"
+                  layout="intrinsic"
+                  width={800}
+                  height={600}
                 />
               )}
               <div>

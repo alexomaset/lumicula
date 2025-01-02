@@ -1,6 +1,6 @@
 import { ApiCharacter, Character } from "@/app/types/types";
 
-// Helper function to convert UI Character to API Character
+
 function convertToApiCharacter(character: Character): ApiCharacter {
   const { id, profileImage, ...rest } = character;
   return {

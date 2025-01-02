@@ -1,9 +1,10 @@
 import React, { useRef } from "react";
 import { Button } from "./ui/Button";
 import { Image as ImageIcon, X } from "lucide-react";
+import Image from "next/image";
 
 interface ProfileImageUploaderProps {
-  profileImage?:  string | File | null | undefined;
+  profileImage?: File;
   onUpload: (file: File) => void;
   onRemove: () => void;
 }
@@ -33,9 +34,11 @@ export const ProfileImageUploader: React.FC<ProfileImageUploaderProps> = ({
       <div>
         {profileImage ? (
           <div className="relative">
-            <img
-              src={getImageUrl(profileImage)}
+            <Image
+              src={getImageUrl(profileImage) || ''}
               alt="Profile"
+              width={500}
+              height={300}
               className="w-24 h-24 rounded-full object-cover"
             />
             <Button
