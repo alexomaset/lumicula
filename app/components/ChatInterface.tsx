@@ -17,7 +17,7 @@ interface ChatHistoryItem {
 interface ChatMessage {
   id: string;
   role: "user" | "assistant" | "system";
-  content: string | MessageContent; // Allow content to be either string or MessageContent
+  content: string | MessageContent;
 }
 
 interface MessageContent {
@@ -35,8 +35,6 @@ interface ChatHistoryItem {
 interface ChatInterfaceProps {
   character: Character;
 }
-
-
 
 // Separate client component for previous conversations
 function PreviousConversations({
@@ -161,6 +159,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
       }
 
       const data = await response.json();
+      console.log("Fetched chat history:", data); 
       setChatHistory(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Failed to fetch chat history:", error);

@@ -8,15 +8,15 @@ import { type NextRequest } from "next/server";
 import { CharacterSchema } from "@/app/db/schema";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
 
-export const dynamic = 'force-static';
 // GET endpoint - Public access to single character
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+   _request: Request,
+   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const character = await db.query.characters.findFirst({
       where: eq(characters.id, id),
     });
@@ -41,7 +41,7 @@ export async function GET(
 // PUT endpoint - Protected, only for character owners
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -52,7 +52,7 @@ export async function PUT(
   }
 
   try {
-    const { id } = params;
+    const { id } = await params;
     const existingCharacter = await db.query.characters.findFirst({
       where: and(
         eq(characters.id, id),
@@ -114,8 +114,8 @@ export async function PUT(
 
 // DELETE endpoint - Protected, only for character owners
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -126,7 +126,7 @@ export async function DELETE(
   }
 
   try {
-    const { id } = params;
+    const { id } = await params;
     const character = await db.query.characters.findFirst({
       where: and(
         eq(characters.id, id),

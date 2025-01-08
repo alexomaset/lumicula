@@ -7,7 +7,8 @@ import { eq } from 'drizzle-orm';
 import { Metadata, ResolvingMetadata } from 'next';
 
 type Props = {
-  params: Promise<{ characterId: string }> | { characterId: string };
+  params: Promise<{ characterId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 // Generate metadata for the page
@@ -15,10 +16,9 @@ export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const resolvedParams = await Promise.resolve(params);
-  
+  const { characterId } = await params;
   const character = await db.query.characters.findFirst({
-    where: eq(characters.id, resolvedParams.characterId),
+    where: eq(characters.id, characterId),
   });
 
   if (!character) {
@@ -35,11 +35,11 @@ export async function generateMetadata(
 
 // Main page component
 export default async function ChatPage({ params }: Props) {
-  const resolvedParams = await Promise.resolve(params);
-  
+  const { characterId } = await params;
+
   // Fetch character using the new syntax
   const character = await db.query.characters.findFirst({
-    where: eq(characters.id, resolvedParams.characterId),
+    where: eq(characters.id, characterId),
   });
 
   // Handle non-existent character
