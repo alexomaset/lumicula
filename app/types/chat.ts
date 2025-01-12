@@ -11,7 +11,7 @@ export interface CharacterConfig {
 // Chat Message Interface (Standardized)
 export interface ChatMessage {
   id?: string;
-  role: "user" | "assistant" | "system";
+  role: 'function' | 'data' | 'system' | 'user' | 'assistant' | 'tool'; 
   content: string;
   timestamp?: Date;
 }

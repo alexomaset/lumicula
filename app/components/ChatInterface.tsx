@@ -49,7 +49,12 @@ function PreviousConversations({
   character: Character;
 }) {
   // Add additional safety check for array
-  if (!session?.user?.id || !Array.isArray(chatHistory) || chatHistory.length === 0) return null;
+  if (
+    !session?.user?.id ||
+    !Array.isArray(chatHistory) ||
+    chatHistory.length === 0
+  )
+    return null;
 
   return (
     <div className="space-y-4 mb-8">
@@ -159,7 +164,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
       }
 
       const data = await response.json();
-      console.log("Fetched chat history:", data); 
+      console.log("Fetched chat history:", data);
       setChatHistory(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Failed to fetch chat history:", error);
@@ -202,8 +207,8 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
     <div className="flex flex-col h-full relative">
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 pb-24">
-        {!isLoadingHistory && (
-            <PreviousConversations 
+          {!isLoadingHistory && (
+            <PreviousConversations
               session={session}
               chatHistory={chatHistory || []} // Provide fallback empty array
               loadChat={loadChat}
@@ -221,7 +226,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
             )}
 
           <ChatMessageList
-            messages={messages.slice(1).map((msg) => {
+            messages={messages.map((msg) => {
               const content =
                 typeof msg.content === "string"
                   ? msg.content
