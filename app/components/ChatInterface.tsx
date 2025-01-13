@@ -109,12 +109,15 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
         prompt.category?.toLowerCase().includes("greeting") ||
         prompt.category?.toLowerCase().includes("initial")
     );
-
+  
+    // Create a shortened version of the description
+    const shortDescription = character.description
+      ? character.description.split('.')[0] // Take first sentence only
+      : "";
+  
     return (
       initialPrompt?.exampleResponse ||
-      `Hello! I am ${character.name}. ${
-        character.description || ""
-      } How can I assist you today?`
+      `Hi, I'm ${character.name}. ${shortDescription} How can I help you?`
     );
   }, []);
 
