@@ -49,6 +49,7 @@ export default function CharacterGrid() {
   }
 
   return (
+    <>
     <div className="min-h-screen flex flex-col items-center justify-between py-8 bg-amber-50">
       <main className="flex flex-col items-center text-center">
         <h2 className="text-2xl font-bold mb-8 px-4 text-center">
@@ -83,7 +84,8 @@ export default function CharacterGrid() {
           ))}
         </div>
       </main>
-      <Footer />
     </div>
+    <Footer />
+    </>
   );
 }
