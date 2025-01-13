@@ -112,7 +112,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
   
     // Create a shortened version of the description
     const shortDescription = character.description
-      ? character.description.split('.')[0] // Take first sentence only
+      ? character.description.split('.')// Take first sentence only
       : "";
   
     return (
