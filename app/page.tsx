@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import type { Character } from "./db/schema";
+import Footer from "./footer/page";
 
 export default function CharacterGrid() {
   const router = useRouter();
@@ -82,6 +83,7 @@ export default function CharacterGrid() {
           ))}
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
