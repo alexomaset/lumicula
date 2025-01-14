@@ -51,3 +51,18 @@ export const INITIAL_CHARACTER: Character = {
     donts: []
   }
 };
+
+export interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+export interface Chat {
+  id: string;
+  messages: Message[];
+  userId: string;
+  characterId: string;
+  updatedAt: Date;
+}

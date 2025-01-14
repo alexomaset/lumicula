@@ -1,6 +1,6 @@
 import { db } from '.';
 import { chat, type Chat, type NewChat } from './schema';
-import { and, eq, InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import { and, desc, eq, InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { characters } from './schema'; // Drizzle schema
 import { createId } from '@paralleldrive/cuid2';
 
@@ -276,20 +276,25 @@ export async function getChatsByUserId(userId: string): Promise<Chat[]> {
       .select()
       .from(chat)
       .where(eq(chat.userId, userId))
-      .orderBy(chat.updatedAt);
+      .orderBy(desc(chat.updatedAt));
 
-    // Normalize all messages in all chats
     return chats.map(chatItem => ({
       ...chatItem,
       messages: Array.isArray(chatItem.messages) 
-        ? chatItem.messages.map(normalizeMessage)
+        ? chatItem.messages
+            .filter(msg => msg?.role && msg?.content && msg?.timestamp)
+            .map(msg => ({
+              ...msg,
+              timestamp: new Date(msg.timestamp)
+            }))
         : []
     }));
   } catch (error) {
     console.error('Error fetching chats:', error);
-    throw new Error('Failed to fetch chats from database');
+    throw new Error('Failed to fetch chats');
   }
 }
+
 
 export async function getChatById(chatId: string): Promise<Chat | null> {
   try {
