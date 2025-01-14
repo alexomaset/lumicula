@@ -29,6 +29,67 @@ export type DosAndDonts = {
   donts: string[];
 };
 
+// Message types for better type safety
+export interface NormalizedMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: Date;
+}
+
+// Zod schema for message validation
+export const MessageSchema = z.object({
+  role: z.enum(['user', 'assistant', 'system']),
+  content: z.string(),
+  timestamp: z.coerce.date()
+});
+
+// Chat table with improved types
+export const chat = pgTable('chats', {
+  id: text('id').$defaultFn(() => createId()).primaryKey(),
+  
+  userId: text('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  
+  messages: jsonb('messages').$type<NormalizedMessage[]>().notNull(),
+  
+  characterId: text('character_id')
+    .references(() => characters.id, { onDelete: 'set null' }),
+  
+  title: text('title'), // Added for chat history display
+  
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Chat type definitions
+export type Chat = InferSelectModel<typeof chat>;
+export type NewChat = InferInsertModel<typeof chat>;
+
+// Zod schema for chat validation
+export const ChatSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  messages: z.array(MessageSchema),
+  characterId: z.string().optional(),
+  title: z.string().optional(),
+  createdAt: z.date(),
+  updatedAt: z.date()
+});
+
+// Relations
+export const chatRelations = relations(chat, ({ one }) => ({
+  user: one(users, {
+    fields: [chat.userId],
+    references: [users.id]
+  }),
+  character: one(characters, {
+    fields: [chat.characterId],
+    references: [characters.id]
+  })
+}));
+
+
 export const characters = pgTable('characters', {
   id: varchar('id', { length: 36 }).$defaultFn(() => createId()).primaryKey(),
   userId: varchar('user_id', { length: 36 }).notNull(),
@@ -123,36 +184,3 @@ export const verificationTokens = pgTable('verificationToken', {
 
 export type verificationToken = InferSelectModel<typeof verificationTokens>;
 
-export const chat = pgTable('chats', {
-  // Use uuid for more robust identifier
-  id: text('id').primaryKey(),
-  
-  // Foreign key to users
-  userId: text('userId')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  
-  // Store messages as JSONB for flexible storage
-  messages: jsonb('messages').$type<any[]>().notNull(),
-  
-  // Metadata fields
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  
-  // Optional: character or context identifier
-  characterId: text('character_id'),
-});
-
-
-export type Chat = InferSelectModel<typeof chat>;
-
-// Relation to users table
-export const chatRelations = relations(chat, ({ one }) => ({
-  user: one(users, {
-    fields: [chat.userId],
-    references: [users.id]
-  })
-}));
-
-// Type definition
-export type NewChat = InferSelectModel<typeof chat>;

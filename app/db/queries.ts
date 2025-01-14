@@ -200,13 +200,27 @@ Example Interactions:
 ${prompts}
 `.trim();
 };
+
+interface NormalizedMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: Date;
+}
 function normalizeMessage(message: any): NormalizedMessage {
+  // Default timestamp handling
+  let timestamp = message.timestamp ? new Date(message.timestamp) : new Date();
+  
+  // Validate timestamp
+  if (isNaN(timestamp.getTime())) {
+    timestamp = new Date();
+  }
+
   // Handle array format: [{text, type}]
   if (Array.isArray(message) && message[0]?.text && message[0]?.type) {
     return {
       role: message[0].type === 'human' ? 'user' : 'assistant',
-      content: message[0].text,
-      timestamp: new Date(message[0].timestamp || new Date())
+      content: String(message[0].text),
+      timestamp
     };
   }
 
@@ -214,41 +228,36 @@ function normalizeMessage(message: any): NormalizedMessage {
   if (message.text && message.type) {
     return {
       role: message.type === 'human' ? 'user' : 'assistant',
-      content: message.text,
-      timestamp: new Date(message.timestamp || new Date())
+      content: String(message.text),
+      timestamp
     };
   }
 
-  // Handle standard format: {role, content}
-  if (message.role && message.content) {
-    return {
-      role: message.role,
-      content: message.content,
-      timestamp: new Date(message.timestamp || new Date())
-    };
-  }
-
-  // Handle legacy or unknown formats
-  console.warn('Unknown message format:', message);
+  // Default return if message format is not recognized
   return {
-    role: 'assistant',
-    content: typeof message === 'string' ? message : JSON.stringify(message),
-    timestamp: new Date()
+    role: 'system',
+    content: '',
+    timestamp
   };
 }
 
 export async function saveChat({
-  id,
+  id = createId(),
   messages,
   userId,
   characterId,
 }: {
-  id: string;
+  id?: string;
   messages: any[];
   userId: string;
   characterId?: string;
 }): Promise<Chat> {
   try {
+    // Validate required fields
+    if (!userId || !Array.isArray(messages)) {
+      throw new Error('Invalid chat data: userId and messages array are required');
+    }
+
     const normalizedMessages = messages.map(normalizeMessage);
 
     const [savedChat] = await db
@@ -266,23 +275,41 @@ export async function saveChat({
     return savedChat;
   } catch (error) {
     console.error('Error saving chat:', error);
-    throw new Error('Failed to save chat to database');
+    throw error instanceof Error 
+      ? error 
+      : new Error('Failed to save chat to database');
   }
 }
 
-export async function getChatsByUserId(userId: string): Promise<Chat[]> {
+export async function getChatsByUserId(
+  userId: string,
+  options: { limit?: number; offset?: number } = {}
+): Promise<Chat[]> {
   try {
-    const chats = await db
+    if (!userId) {
+      throw new Error('userId is required');
+    }
+
+    const query = db
       .select()
       .from(chat)
       .where(eq(chat.userId, userId))
       .orderBy(desc(chat.updatedAt));
 
+    if (options.limit) {
+      query.limit(options.limit);
+    }
+    if (options.offset) {
+      query.offset(options.offset);
+    }
+
+    const chats = await query;
+
     return chats.map(chatItem => ({
       ...chatItem,
       messages: Array.isArray(chatItem.messages) 
         ? chatItem.messages
-            .filter(msg => msg?.role && msg?.content && msg?.timestamp)
+            .filter(msg => msg?.role && msg?.content)
             .map(msg => ({
               ...msg,
               timestamp: new Date(msg.timestamp)
@@ -291,13 +318,18 @@ export async function getChatsByUserId(userId: string): Promise<Chat[]> {
     }));
   } catch (error) {
     console.error('Error fetching chats:', error);
-    throw new Error('Failed to fetch chats');
+    throw error instanceof Error 
+      ? error 
+      : new Error('Failed to fetch chats');
   }
 }
 
-
 export async function getChatById(chatId: string): Promise<Chat | null> {
   try {
+    if (!chatId) {
+      throw new Error('chatId is required');
+    }
+
     const [foundChat] = await db
       .select()
       .from(chat)
@@ -305,7 +337,6 @@ export async function getChatById(chatId: string): Promise<Chat | null> {
     
     if (!foundChat) return null;
 
-    // Normalize messages before returning
     return {
       ...foundChat,
       messages: Array.isArray(foundChat.messages)
@@ -314,6 +345,8 @@ export async function getChatById(chatId: string): Promise<Chat | null> {
     };
   } catch (error) {
     console.error('Error fetching chat:', error);
-    throw new Error('Failed to fetch chat from database');
+    throw error instanceof Error 
+      ? error 
+      : new Error('Failed to fetch chat from database');
   }
 }

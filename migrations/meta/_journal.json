@@ -120,6 +120,13 @@
       "when": 1735742312074,
       "tag": "0016_worried_secret_warriors",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1736845975599,
+      "tag": "0017_exotic_silvermane",
+      "breakpoints": true
     }
   ]
 }
