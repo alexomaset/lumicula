@@ -1,6 +1,6 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { DrizzleAdapter } from '@auth/drizzle-adapter';
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from '../db';
 import { users, accounts, sessions, verificationTokens } from '../db/schema';
 
@@ -18,14 +18,10 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   session: {
-    strategy: 'database',
+    strategy: "database",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async signIn({ user }) {
-      const allowedEmails = ['alexomaset711@gmail.com', 'nevooronni@gmail.com', 'mika.martidkainen@venumia.com']; 
-      return allowedEmails.includes(user.email ?? ''); 
-    },
     async session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
@@ -36,7 +32,7 @@ export const authOptions: NextAuthOptions = {
   events: {
     async signIn({ user, account }) {
       if (!user.email) {
-        throw new Error('Email required for authentication');
+        throw new Error("Email required for authentication");
       }
     },
     async signOut({ session }) {
@@ -50,7 +46,7 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === 'development',
 };
 
-declare module 'next-auth' {
+declare module "next-auth" {
   interface Session {
     user: {
       id: string;
