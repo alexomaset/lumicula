@@ -10,26 +10,26 @@ export default function CharacterGrid() {
   const router = useRouter();
   const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
+  const [connectingId, setConnectingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadCharacters() {
       try {
         const response = await fetch('/api/characters');
         const data = await response.json();
-        console.log('API Response:', data); // Add this to debug
+        console.log('API Response:', data);
         
-        // Ensure data is an array before setting state
         if (Array.isArray(data)) {
           setCharacters(data);
         } else if (data?.characters && Array.isArray(data.characters)) {
           setCharacters(data.characters);
         } else {
           console.error('Invalid data format received:', data);
-          setCharacters([]); // Set empty array as fallback
+          setCharacters([]);
         }
       } catch (error) {
         console.error('Error loading characters:', error);
-        setCharacters([]); // Set empty array on error
+        setCharacters([]);
       } finally {
         setLoading(false);
       }
@@ -38,8 +38,14 @@ export default function CharacterGrid() {
     loadCharacters();
   }, []);
 
-  const handleConnect = (character: Character) => {
-    router.push(`/chat/${character.id}`);
+  const handleConnect = async (character: Character) => {
+    setConnectingId(character.id);
+    try {
+      await router.push(`/chat/${character.id}`);
+    } catch (error) {
+      console.error('Navigation error:', error);
+      setConnectingId(null);
+    }
   };
 
   if (loading) {
@@ -76,9 +82,21 @@ export default function CharacterGrid() {
               <p className="mt-4 text-center text-black">{character.name}</p>
               <button 
                 onClick={() => handleConnect(character)}
-                className="mt-4 bg-black hover:text-yellow-300 active:bg-blue-800 text-white py-2 px-4 rounded"
+                disabled={connectingId === character.id}
+                className={`mt-4 py-2 px-4 rounded flex items-center justify-center min-w-[100px] ${
+                  connectingId === character.id
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-black hover:text-yellow-300 active:bg-blue-800 text-white'
+                }`}
               >
-                Connect
+                {connectingId === character.id ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <span>Connecting...</span>
+                  </div>
+                ) : (
+                  'Connect'
+                )}
               </button>
             </div>
           ))}
