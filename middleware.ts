@@ -2,7 +2,7 @@ import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
 
 const ALLOWED_EMAILS = [
-  'alexomasst711@gmail.com',
+  'alexomaset711@gmail.com',
   'nevooronni@gmail.com',
   'mika.martikainen@venumia.com'
 ];
