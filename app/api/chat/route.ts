@@ -9,10 +9,19 @@ import { characterQueries, generateSystemMessage } from '@/app/db/queries';
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
+
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    return new Response('Unauthorized', {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
     const { messages, characterId } = await req.json();
-    const session = await getServerSession(authOptions);
-    
+   
     // Fetch character from database
     const character = await characterQueries.getById(characterId);
     if (!character) {
