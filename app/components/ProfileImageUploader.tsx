@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef } from "react";
 import { Button } from "./ui/Button";
 import { Image as ImageIcon, X } from "lucide-react";
