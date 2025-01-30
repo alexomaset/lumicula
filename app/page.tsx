@@ -62,14 +62,16 @@ export default function CharacterGrid() {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col items-center justify-between py-8 bg-amber-50 bg-opacity-80 overflow-hidden">
+       <div className="min-h-screen flex flex-col items-center justify-between py-8 bg-amber-50 bg-opacity-80 overflow-hidden">
         <AnimatedBackground />
         {[...Array(5)].map((_, index) => (
           <Meteor key={index} />
         ))}
-        <main className="flex flex-col items-center text-center relative z-10">
-          <h2 className="text-3xl font-bold mb-12 px-4 text-center bg-gradient-to-r from-amber-700 to-yellow-500 bg-clip-text text-transparent">
-            Support from higher powers. Connect with your counselor and get support.
+        {/* Increased z-index and added padding-top */}
+        <main className="flex flex-col items-center text-center relative z-50 pt-16">
+          <h2 className="text-3xl font-bold mb-12 px-4 text-center bg-gradient-to-r from-amber-700 to-yellow-500 bg-clip-text text-transparent relative">
+            Support from higher powers. <br />
+            Connect with your counselor and get support.
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-16 mt-8">
             {Array.isArray(characters) && characters.map((character) => (

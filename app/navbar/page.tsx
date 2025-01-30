@@ -1,66 +1,70 @@
 "use client";
 
-import { useState } from "react";
-import { useSession, signIn, signOut } from "next-auth/react";
-import Link from "next/link";
-import Image from "next/image";
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import Image from 'next/image';
 import lumi from "../public/images/lumi.jpeg";
-import AuthButtons from "../components/AuthButtons";
-
+import AuthButtons from '../components/AuthButtons';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session, status } = useSession();
 
-  const toggleMenu = () => setIsOpen(!isOpen);
-
   return (
-    <nav className="w-full bg-white px-6 py-4 text-black">
-      <div className="flex justify-between items-center">
-        {/* Logo and About Link */}
-        <div className="flex items-center space-x-6">
-          <Link href="/">
-            <div className="flex items-center space-x-2">
+    <nav className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-md shadow-md z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo and About Link */}
+          <div className="flex items-center space-x-8">
+            <Link href="/" className="flex items-center space-x-2 group">
               <Image
                 src={lumi}
                 alt="Lumicula logo"
                 width={300}
                 height={300}
-                className="transition transform duration-200 ease-in-out"
+                className="rounded-full transform group-hover:scale-110 transition-transform duration-200"
               />
-            </div>
-          </Link>
-          <Link
-            href="/feedback"
-            className="hidden md:block hover:text-yellow-300 mt-[15px]"
-          >
-            About
-          </Link>
-        </div>
-
-        {/* Desktop Auth Buttons */}
-        <div className="hidden md:block">
-          <AuthButtons />
-        </div>
-
-        {/* Hamburger Menu - Mobile Only */}
-        <button onClick={toggleMenu} className="md:hidden text-xl">
-          &#9776;
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden flex flex-col mt-4 space-y-2">
-          <Link href="/feedback">
-            <p onClick={toggleMenu} className="hover:text-yellow-300">
+            </Link>
+            <Link
+              href="/feedback"
+              className="hidden md:block text-gray-600 hover:text-amber-500 transition-colors duration-200 font-medium"
+            >
               About
-            </p>
-          </Link>
-          {/* Auth Buttons displayed only in the mobile menu */}
-          <AuthButtons />
+            </Link>
+          </div>
+
+          {/* Desktop Auth Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
+            <AuthButtons />
+          </div>
+
+          {/* Hamburger Menu */}
+          <button 
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden relative w-10 h-10 text-gray-500 hover:text-amber-500 transition-colors duration-200"
+          >
+            <div className={`absolute w-6 transform transition-transform duration-300 ${isOpen ? 'rotate-45 translate-y-0' : '-translate-y-2'} h-0.5 bg-current`} />
+            <div className={`absolute w-6 h-0.5 bg-current transition-opacity duration-300 ${isOpen ? 'opacity-0' : 'opacity-100'}`} />
+            <div className={`absolute w-6 transform transition-transform duration-300 ${isOpen ? '-rotate-45 translate-y-0' : 'translate-y-2'} h-0.5 bg-current`} />
+          </button>
         </div>
-      )}
+
+        {/* Mobile Menu */}
+        <div className={`md:hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-56 opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
+          <div className="px-2 pt-2 pb-3 space-y-1">
+            <Link
+              href="/feedback"
+              className="block px-3 py-2 text-gray-600 hover:text-amber-500 transition-colors duration-200"
+            >
+              About
+            </Link>
+            <div className="px-3 py-2">
+              <AuthButtons />
+            </div>
+          </div>
+        </div>
+      </div>
     </nav>
   );
 }
