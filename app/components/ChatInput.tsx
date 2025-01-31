@@ -5,6 +5,7 @@ interface ChatInputFormProps {
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
+  className?: string;
 }
 
 export default function ChatInputForm({
