@@ -76,10 +76,10 @@ export default function CharacterDescriptionPage({
                   alt={character.name}
                   width={400}
                   height={500}
-                  className="w-full h-64 md:h-full object-cover border-b-4 md:border-b-0 md:border-r-4 border-purple-200"
+                  className="w-full h-64 md:h-full object-cover border-b-4 md:border-b-0 md:border-r-4 border-yellow-200"
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                  <h1 className="text-3xl font-bold text-white">
+                  <h1 className="text-3xl font-bold text-yellow-500">
                     {character.name || "Unknown Character"}
                   </h1>
                 </div>
