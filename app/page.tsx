@@ -45,7 +45,8 @@ export default function CharacterGrid() {
   const handleConnect = async (character: Character) => {
     setConnectingId(character.id);
     try {
-      await router.push(`/chat/${character.id}`);
+      // Navigate to the character's description page
+      await router.push(`/character/${character.id}`);
     } catch (error) {
       console.error('Navigation error:', error);
       setConnectingId(null);
