@@ -100,7 +100,7 @@ export default function CharacterDescriptionPage({
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   href={`/chat/${character.id || "unknown"}`}
-                  className="inline-block w-full md:w-auto bg-gray-600 hover:bg-yellow-900 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 text-center"
+                  className="bg-black inline-block w-full md:w-auto  hover:bg-yellow-900 hover:text-yellow-300 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 text-center"
                 >
                   💬 Start Chatting
                 </motion.a>

@@ -17,6 +17,7 @@ interface ChatMessageListProps {
   lastMessageRef?: React.RefObject<HTMLDivElement | null>;
   characterName: string;
   isPreview?: boolean;
+  isInputFocused: boolean;
 }
 
 const formatContent = (content: string | MessageContent): string => {
@@ -46,6 +47,7 @@ export default function ChatMessageList({
   lastMessageRef,
   characterName,
   isPreview = false,
+  isInputFocused = false,
 }: ChatMessageListProps) {
   // Debug logging
   console.log('Raw messages:', JSON.stringify(messages, null, 2));
@@ -71,7 +73,7 @@ export default function ChatMessageList({
   });
 
   // Debug logging for valid messages
-  console.log('Valid messages:', validMessages);
+  console.log("🚀 ~ messages:", messages)
 
   if (validMessages.length === 0) {
     return (
@@ -82,7 +84,7 @@ export default function ChatMessageList({
   }
 
   return (
-    <div className={`space-y-4 ${isPreview ? "opacity-75" : ""}`}>
+    <div className={`space-y-4 ${isInputFocused && validMessages.length === 1 ? "md:static md:bottom-auto fixed bottom-56" : ""} ${isPreview ? "opacity-75" : ""}`}>
       {validMessages.map((message, index) => {
         // Debug logging for each message being rendered
         console.log('Rendering message:', message);
@@ -92,7 +94,7 @@ export default function ChatMessageList({
         return (
           <div
             key={message.id}
-            ref={index === validMessages.length - 1 ? lastMessageRef : null}
+            ref={index === validMessages.length - 1 && validMessages.length > 1 ? lastMessageRef : null}
             className={`p-3 sm:p-4 rounded-lg ${
               message.role === "user"
                 ? "bg-blue-100 text-black ml-auto max-w-[85%] sm:max-w-md"

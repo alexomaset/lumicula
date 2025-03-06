@@ -45,6 +45,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
   const sessionId = session?.user?.id || "anonymous";
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const lastMessageRef = useRef<HTMLDivElement>(null);
 
   const getInitialMessage = useCallback((character: Character) => {
@@ -149,7 +150,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
 
   return (
     <div className="flex flex-col h-full relative">
-      <div className="flex-1 overflow-y-auto">
+      <div className={`flex-1 overflow-y-auto ${isInputFocused ? 'pb-0' : 'pb-24'}`}>
         <div className="p-4 pb-24">
           {!isLoadingHistory && (
             <PreviousConversations
@@ -183,16 +184,18 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
             })}
             lastMessageRef={lastMessageRef}
             characterName={character.name}
+            isInputFocused={isInputFocused}
           />
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4">
+      <div className={`fixed bottom-0 left-0 right-0 bg-white border-t p-4`}>
         <ChatInputForm
           input={input}
           handleInputChange={handleInputChange}
           handleSubmit={handleSubmit}
           isLoading={isLoading}
+          onFocusChange={setIsInputFocused}
         />
       </div>
     </div>

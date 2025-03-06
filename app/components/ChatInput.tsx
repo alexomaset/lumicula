@@ -1,4 +1,5 @@
 import LoadingSpinner from "./LoadingSpinner";
+import { useState } from "react";
 
 interface ChatInputFormProps {
   input: string;
@@ -6,6 +7,7 @@ interface ChatInputFormProps {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
   className?: string;
+  onFocusChange?: (isFocused: boolean) => void;
 }
 
 export default function ChatInputForm({
@@ -13,6 +15,7 @@ export default function ChatInputForm({
   handleInputChange,
   handleSubmit,
   isLoading,
+  onFocusChange,
 }: ChatInputFormProps) {
   return (
     <form
@@ -23,6 +26,8 @@ export default function ChatInputForm({
         name="prompt"
         value={input}
         onChange={handleInputChange}
+        onFocus={() => onFocusChange?.(true)}
+        onBlur={() => onFocusChange?.(false)}
         className="flex-1 p-3 border rounded-lg text-base"
         placeholder="Type your message..."
         disabled={isLoading}

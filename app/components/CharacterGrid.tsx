@@ -54,7 +54,7 @@ export default function CharacterGrid() {
                     </div>
                   )}
                 </div>
-                <p className="mt-4 text-center text-black">{character.name}</p>
+                <p className="mt-4 text-center text-black text-xs">{character.name}</p>
                 <button className="mt-4 bg-black hover:text-yellow-300 active:bg-blue-800 text-white py-2 px-4 rounded">
                   Connect
                 </button>
