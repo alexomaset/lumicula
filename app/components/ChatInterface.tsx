@@ -48,22 +48,33 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const lastMessageRef = useRef<HTMLDivElement>(null);
 
+  
   const getInitialMessage = useCallback((character: Character) => {
-    const initialPrompt = character.prompts?.find(
-      (prompt) =>
-        prompt.category?.toLowerCase().includes("greeting") ||
-        prompt.category?.toLowerCase().includes("initial")
-    );
-  
-    // Create a shortened version of the description
-    const shortDescription = character.description
-      ? character.description.split('.')[0] // Take first sentence only
-      : "";
-  
-    return (
-      initialPrompt?.exampleResponse ||
-      `Hi, I'm ${character.name}. ${shortDescription} How can I help you?`
-    );
+    const initialMessages = [
+      "Welcome, seeker. How can we explore your path today?",
+      "Hello! It's a pleasure to connect with you. What's on your mind right now?",
+      "Greetings! I'm here to support your journey. What would you like to focus on today?",
+      "Namaste! How can we enrich your spirit today?",
+      "Blessings to you. What guidance are you seeking at this moment?",
+      "Hi there! Let's uncover what the universe has in store for you today.",
+      "Welcome! Feel free to share your thoughts and feelings; I'm here to listen.",
+      "Hello, I'm glad you've reached out. What area of your life would you like to enhance?",
+      "Peace be with you. How can we bring more balance to your life today?",
+      "Good to see you! What steps can we take together on your wellness journey today?",
+      "Warm greetings! What's in your heart that you'd like to discuss?",
+      "Hello and welcome! Are you looking for guidance, healing, or both today?",
+      "Hi! Let's make today a stepping stone to greater well-being. Where shall we begin?",
+      "Welcome! What insights or guidance can I offer you today?",
+      "Hello, dear soul. How can we nurture your spirit in our conversation today?",
+      "Greetings of peace! What burdens can I help you lighten today?",
+      "Hi! I'm here to help you find clarity. What questions do you carry with you today?",
+      "Welcome! Every session is a step towards harmony. What's your first step today?",
+      "It's a joy to meet you! How can we start our journey toward your personal improvement?",
+      "Salutations! What wisdom can we seek together in this beautiful moment?"
+    ];
+    // use a random message from our collection
+    const randomMessage = initialMessages[Math.floor(Math.random() * initialMessages.length)];
+    return `${randomMessage}`;
   }, []);
 
   const {
