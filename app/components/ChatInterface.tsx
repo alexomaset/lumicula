@@ -46,6 +46,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [randomInitialMessage, setRandomInitialMessage] = useState('');
   const lastMessageRef = useRef<HTMLDivElement>(null);
 
   
@@ -77,6 +78,12 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
     return `${randomMessage}`;
   }, []);
 
+  useEffect(() => {
+    if (!randomInitialMessage) {
+      setRandomInitialMessage(getInitialMessage(character));
+    }
+  }, [character, getInitialMessage, randomInitialMessage]);
+
   const {
     messages,
     input,
@@ -91,7 +98,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
       {
         id: "system-message",
         role: "assistant",
-        content: getInitialMessage(character),
+        content: randomInitialMessage,
       },
     ],
     keepLastMessageOnError: true,
