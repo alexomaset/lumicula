@@ -46,6 +46,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  console.log("🚀 ~ ChatInterface ~ isInputFocused:", isInputFocused)
   const [randomInitialMessage, setRandomInitialMessage] = useState('');
   const lastMessageRef = useRef<HTMLDivElement>(null);
 
@@ -91,7 +92,7 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
     handleSubmit,
     setMessages,
     isLoading,
-    error,
+    // error,
   } = useChat({
     id: `chat-${sessionId}-${character.id}`,
     initialMessages: [
@@ -168,8 +169,8 @@ export default function ChatInterface({ character }: ChatInterfaceProps) {
 
   return (
     <div className="flex flex-col h-full relative">
-      <div className={`flex-1 overflow-y-auto ${isInputFocused ? 'pb-0' : 'pb-24'}`}>
-        <div className="p-4 pb-24">
+      <div className={`flex-1 overflow-y-auto`}>
+        <div className={`p-4 pb-24`}>
           {!isLoadingHistory && (
             <PreviousConversations
               session={session}

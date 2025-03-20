@@ -50,7 +50,7 @@ export default function ChatMessageList({
   isInputFocused = false,
 }: ChatMessageListProps) {
   // Debug logging
-  console.log('Raw messages:', JSON.stringify(messages, null, 2));
+  // console.log('Raw messages:', JSON.stringify(messages, null, 2));
 
   // Filter and validate messages
   const validMessages = messages.filter((message): message is Message => {
@@ -73,7 +73,7 @@ export default function ChatMessageList({
   });
 
   // Debug logging for valid messages
-  console.log("🚀 ~ messages:", messages)
+  // console.log("🚀 ~ messages:", messages)
 
   if (validMessages.length === 0) {
     return (
@@ -84,7 +84,7 @@ export default function ChatMessageList({
   }
 
   return (
-    <div className={`space-y-4 ${isInputFocused && validMessages.length === 1 ? "md:static md:bottom-auto fixed bottom-56" : ""} ${isPreview ? "opacity-75" : ""}`}>
+    <div className={`space-y-4 ${isInputFocused && validMessages.length < 2 ? "md:static md:bottom-auto fixed bottom-56" : validMessages.length === 1 ? "pt-2" : "pt-16"} ${isPreview ? "opacity-75" : ""}`}>
       {validMessages.map((message, index) => {
         // Debug logging for each message being rendered
         console.log('Rendering message:', message);
